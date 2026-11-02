@@ -31,7 +31,7 @@
     ],
     "require": {
         "php": ">=8.4",
-        "msstc4php/vo-base": "dev-feat/value-objects-library as 1.1.0"
+        "msstc4php/vo-base": "dev-main"
     },
     "require-dev": {
         "deptrac/deptrac": "^3.0",

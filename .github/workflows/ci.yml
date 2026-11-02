@@ -9,7 +9,7 @@ env:
   # must keep the local msstc4php/ + msstc4symfony/ layout, each on the branch its constraint names -- a
   # path package's version is derived from the checked-out branch name.
   CORE_REPO: https://github.com/msstc4php/vo-base.git
-  CORE_BRANCH: feat/value-objects-library
+  CORE_BRANCH: main
   DOCTRINE_REPO: https://github.com/msstc4php/vo-base-doctrine-bridge.git
   DOCTRINE_BRANCH: main
 

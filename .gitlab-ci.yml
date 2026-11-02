@@ -1,6 +1,6 @@
 variables:
   CORE_REPO: "https://github.com/msstc4php/vo-base.git"
-  CORE_BRANCH: "feat/value-objects-library"
+  CORE_BRANCH: "main"
   DOCTRINE_REPO: "https://github.com/msstc4php/vo-base-doctrine-bridge.git"
   DOCTRINE_BRANCH: "main"
 
