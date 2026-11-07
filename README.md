@@ -7,7 +7,7 @@ One line in `bundles.php` registers the constraint validator and — if
 [`msstc4php/vo-base-doctrine-bridge`][doctrine] happens to be installed — the
 Doctrine ORM and ODM types as well.
 
-## Install (pre-release)
+## Install
 
 Neither package is on Packagist yet:
 
@@ -18,15 +18,14 @@ Neither package is on Packagist yet:
         { "type": "vcs", "url": "https://github.com/msstc4symfony/vo-base-bridge" }
     ],
     "require": {
-        "msstc4php/vo-base": "dev-main",
-        "msstc4symfony/vo-base-bridge": "dev-main"
+        "msstc4symfony/vo-base-bridge": "^0.1"
     }
 }
 ```
 
 Doctrine is **not** required. If you want the field types, also add
 `{ "type": "vcs", "url": "https://github.com/msstc4php/vo-base-doctrine-bridge" }` to `repositories` and
-require `msstc4php/vo-base-doctrine-bridge`; the bundle picks it up on its own.
+require `msstc4php/vo-base-doctrine-bridge:^0.1`; the bundle picks it up on its own.
 
 ## Enable the bundle
 

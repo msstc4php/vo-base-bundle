@@ -25,7 +25,7 @@
     ],
     "require": {
         "php": ">=8.4",
-        "msstc4php/vo-base": "dev-main",
+        "msstc4php/vo-base": "^0.1",
         "symfony/config": "^7.4|^8.0",
         "symfony/dependency-injection": "^7.4|^8.0",
         "symfony/http-kernel": "^7.4|^8.0"
@@ -39,7 +39,7 @@
         "doctrine/orm": "^3.3",
         "friendsofphp/php-cs-fixer": "^3.76",
         "infection/infection": "^0.32",
-        "msstc4php/vo-base-doctrine-bridge": "dev-main",
+        "msstc4php/vo-base-doctrine-bridge": "^0.1",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",
