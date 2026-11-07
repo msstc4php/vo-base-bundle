@@ -18,14 +18,14 @@ Neither package is on Packagist yet:
         { "type": "vcs", "url": "https://github.com/msstc4symfony/vo-base-bridge" }
     ],
     "require": {
-        "msstc4symfony/vo-base-bridge": "^0.2"
+        "msstc4symfony/vo-base-bridge": "^0.3"
     }
 }
 ```
 
 Doctrine is **not** required. If you want the field types, also add
 `{ "type": "vcs", "url": "https://github.com/msstc4php/vo-base-doctrine-bridge" }` to `repositories` and
-require `msstc4php/vo-base-doctrine-bridge:^0.3`; the bundle picks it up on its own.
+require `msstc4php/vo-base-doctrine-bridge:^0.4`; the bundle picks it up on its own.
 
 ## Enable the bundle
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0 - 2026-11-07
+
+- Requires `msstc4php/vo-base` ^0.4 and, when installed, `msstc4php/vo-base-doctrine-bridge` ^0.4. The core
+  validates more strictly (trailing newlines, spaces and control characters in URLs), so constraints reject such
+  input now.
+
 ## 0.2.0 - 2026-11-07
 
 - `AssertIpRange` constraint.
