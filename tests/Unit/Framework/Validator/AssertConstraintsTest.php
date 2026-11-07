@@ -11,6 +11,7 @@ use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertDecimal;
 use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertDuration;
 use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertEmailAddress;
 use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertIban;
+use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertIpRange;
 use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertIpv4;
 use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertPhoneNumber;
 use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertSlug;
@@ -34,6 +35,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(AssertDuration::class)]
 #[CoversClass(AssertEmailAddress::class)]
 #[CoversClass(AssertIban::class)]
+#[CoversClass(AssertIpRange::class)]
 #[CoversClass(AssertIpv4::class)]
 #[CoversClass(AssertPhoneNumber::class)]
 #[CoversClass(AssertSlug::class)]
@@ -67,6 +69,7 @@ final class AssertConstraintsTest extends TestCase
         yield 'credit_card_number' => [AssertCreditCardNumber::class, '4111111111111111', '4111111111111112'];
         yield 'decimal' => [AssertDecimal::class, '1.23', 'not-a-number'];
         yield 'cidr' => [AssertCidr::class, '192.168.0.0/24', 'not-a-cidr'];
+        yield 'ip_range' => [AssertIpRange::class, '10.0.0.5-10.0.0.20', '10.0.0.20-10.0.0.5'];
         yield 'time_of_day' => [AssertTimeOfDay::class, '09:30:00', '25:00:00'];
         yield 'duration' => [AssertDuration::class, 'PT30S', 'not-a-duration'];
     }

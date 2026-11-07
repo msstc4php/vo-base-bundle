@@ -29,7 +29,7 @@ and the `hasType` guard would survive it anyway.
 
 ## Symfony Validator
 
-`ValidValueObject` plus 13 `Assert*` constraints, each naming one value object.
+`ValidValueObject` plus 14 `Assert*` constraints, each naming one value object.
 Validation runs the value object's own constructor and turns its exception into
 a violation, so the rules live in one place rather than being restated as
 constraint options.
