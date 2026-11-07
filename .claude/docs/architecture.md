@@ -1,13 +1,6 @@
 # Architecture
 
-Two layers, enforced by `deptrac.yaml`.
-
-```
-Validator  — ValidValueObject + 13 Assert* constraints
-    ^
-    |
-  Bundle   — ValueObjectBridgeBundle
-```
+Canonical `bundle-standard` layers, enforced by `deptrac.yaml`: `Framework` holds the constraints, `BundleRoot` the bundle.
 
 There is **no Doctrine layer**. That absence is the split: the Doctrine types
 live in `msstc4php/vo-base-doctrine-bridge`, which this package only *suggests*.
@@ -38,6 +31,7 @@ removed, and the Validator suite passes in full.
 
 ```
 src/
-├── Validator/   ValidValueObject, ValidValueObjectValidator, 13 Assert*
-└── Bundle/      ValueObjectBridgeBundle
+├── Framework/Validator/  ValidValueObject, ValidValueObjectValidator, 13 Assert*
+├── Resources/config/     validator.php
+└── ValueObjectBridgeBundle.php
 ```

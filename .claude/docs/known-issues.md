@@ -63,3 +63,29 @@ The move did **not** bring the package to `bundle-standard`:
 among them the non-canonical `src/Bundle` and `src/Validator` layout and the
 missing standard `checks.yml`. The current `ci.yml` clones a core branch that is
 not on the remote yet, so it cannot pass until the core is pushed.
+
+## Standard layout since 2026-11-02 UTC
+
+The bundle class sits at `src/ValueObjectBridgeBundle.php`, constraints in `src/Framework/Validator/`, and the
+validator service in `src/Resources/config/validator.php`, because the `BundleRoot` layer may not reference `Framework`.
+That file executes under coverage and cannot be listed in `#[CoversClass]`, so its test is in `tests/Integration`.
+
+- `/tmp/vo-bridge-kernel` is shared by every install of this package: after switching dependencies delete it, or a
+  stale container gives odd `TypeError`s.
+- `doctrine/doctrine-bundle ^2.18` and `symfony/doctrine-bridge` in `composer-ci.json` are real floors: lower ones
+  fatal under `--prefer-lowest`.
+- CI resolves the siblings from GitHub (`dev-main`), so a change across packages is pushed core first, then the
+  Doctrine bridge, then this package.
+
+## The validator import line has no mutation coverage
+
+`$configurator->import(...)` in `loadExtension` is exercised only by `tests/Integration`, whose classes are
+`#[CoversNothing]`: the imported file cannot be listed in coverage metadata, and the shared `phpunit.xml.dist` cannot
+change. Infection counts removing that line as uncovered. Accepted; `ValidatorRegistrationTest` still catches it.
+
+## Integration kernels share a container cache across checkouts
+
+`IntegrationKernel` caches under `sys_get_temp_dir()/vo-bridge-kernel/<id>`, so a second checkout or a
+`--prefer-lowest` copy reuses a container compiled against other vendor versions and fails with
+signature errors (e.g. `ConnectionFactory::createConnection(): Argument #3 ... array given`). Delete
+that directory when switching dependency sets locally; CI runners start clean.

@@ -1,0 +1,45 @@
+name: Code Quality Checks
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - LICENSE
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - LICENSE
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  standard:
+    uses: msstc4symfony/bundle-standard/.github/workflows/php-bundle.yml@v4.0.0
+    with:
+      extensions: 'mbstring, xml, ctype, iconv, intl, bcmath, mongodb, pdo_sqlite'
+      # Measured MSI 87.9 % on 2026-11-02 UTC, minus a margin for noise.
+      infection-min-msi: 85
+      infection-min-covered-msi: 85
+
+  # The Doctrine bridge is suggested, never required: everything must still load and work without it.
+  without-doctrine:
+    name: Bundle works with no Doctrine installed at all
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, mbstring
+          coverage: none
+          tools: composer:v2
+      - run: composer update --prefer-dist --no-progress --no-interaction
+      - run: php tools/check-autoload-isolation.php "$PWD/src" 'Msstc4Symfony\VoBaseBridge\'

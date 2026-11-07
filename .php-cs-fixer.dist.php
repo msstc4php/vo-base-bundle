@@ -1,15 +1,14 @@
-<?php declare(strict_types=1);
+<?php
 
 $finder = (new PhpCsFixer\Finder())
     ->in(__DIR__ . '/src')
     ->in(__DIR__ . '/tests')
-    ->append([__FILE__, __DIR__ . '/tools/check-autoload-isolation.php'])
+    ->exclude('var')
 ;
 
 return (new PhpCsFixer\Config())
     ->setRules([
         '@Symfony' => true,
-        'declare_strict_types' => true,
         'phpdoc_align' => [
             'align' => 'left',
         ],
@@ -27,6 +26,7 @@ return (new PhpCsFixer\Config())
         ],
         'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
         'class_attributes_separation' => true,
+        'ordered_class_elements' => true,
         'trailing_comma_in_multiline' => [
             'elements' => ['arguments', 'arrays', 'match', 'parameters'],
         ],

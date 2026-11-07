@@ -1,7 +1,7 @@
 {
     "name": "msstc4symfony/vo-base-bridge",
     "description": "Symfony Validator constraints and a bundle for msstc4php/vo-base.",
-    "type": "library",
+    "type": "symfony-bundle",
     "license": "MIT",
     "keywords": [
         "value-object",
@@ -15,51 +15,36 @@
     "prefer-stable": true,
     "repositories": [
         {
-            "type": "path",
-            "url": "../../msstc4php/vo-base",
-            "options": {
-                "symlink": true
-            }
+            "type": "vcs",
+            "url": "https://github.com/msstc4php/vo-base"
         },
         {
-            "type": "path",
-            "url": "../../msstc4php/vo-base-doctrine-bridge",
-            "options": {
-                "symlink": true
-            }
+            "type": "vcs",
+            "url": "https://github.com/msstc4php/vo-base-doctrine-bridge"
         }
     ],
     "require": {
         "php": ">=8.4",
-        "msstc4php/vo-base": "dev-main"
+        "msstc4php/vo-base": "dev-main",
+        "symfony/config": "^7.4|^8.0",
+        "symfony/dependency-injection": "^7.4|^8.0",
+        "symfony/http-kernel": "^7.4|^8.0"
     },
     "require-dev": {
-        "deptrac/deptrac": "^3.0",
-        "doctrine/dbal": "^4.4",
-        "doctrine/doctrine-bundle": "^2.13",
-        "doctrine/mongodb-odm": "^2.9",
-        "doctrine/mongodb-odm-bundle": "^5.0",
-        "doctrine/orm": "^3.3",
-        "friendsofphp/php-cs-fixer": "^3.64",
-        "msstc4php/vo-base-doctrine-bridge": "dev-main",
+        "friendsofphp/php-cs-fixer": "^3.76",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",
         "phpstan/phpstan-strict-rules": "^2.0",
         "phpstan/phpstan-symfony": "^2.0",
-        "phpunit/phpunit": "^11.5 || ^12.0",
-        "rector/rector": "^2.0",
+        "phpunit/phpunit": ">=11.0",
+        "rector/rector": "^2.1",
         "roave/security-advisories": "dev-latest",
-        "spaze/phpstan-disallowed-calls": "^4.0",
-        "symfony/config": "^7.2",
-        "symfony/dependency-injection": "^7.2",
-        "symfony/framework-bundle": "^7.2",
-        "symfony/http-kernel": "^7.2",
-        "symfony/validator": "^7.2"
+        "symfony/framework-bundle": "^7.4|^8.0",
+        "symfony/validator": "^7.4|^8.0"
     },
     "suggest": {
         "symfony/validator": "To validate raw input against value object rules via constraints.",
-        "symfony/http-kernel": "To auto-register constraints and Doctrine types through ValueObjectBridgeBundle.",
         "msstc4php/vo-base-doctrine-bridge": "To have the bundle register the Doctrine ORM/ODM types as well."
     },
     "autoload": {
@@ -73,10 +58,27 @@
         }
     },
     "config": {
-        "sort-packages": true,
         "allow-plugins": {
-            "phpstan/extension-installer": true,
-            "php-http/discovery": false
+            "phpstan/extension-installer": true
+        },
+        "sort-packages": true
+    },
+    "authors": [
+        {
+            "name": "Maxim Shamaev",
+            "email": "maxim.shamaev@gmail.com"
+        }
+    ],
+    "conflict": {
+        "symfony/symfony": "*"
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": false,
+            "require": "^7.4|^8.0"
+        },
+        "bundle-standard": {
+            "runtime": "php84"
         }
     }
 }

@@ -29,11 +29,13 @@ $loaded = 0;
 
 /** @var SplFileInfo $file */
 foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir)) as $file) {
-    if ($file->getExtension() !== 'php') {
+    $relative = \substr($file->getPathname(), \strlen($dir) + 1, -4);
+
+    // Container configuration files declare no class.
+    if ($file->getExtension() !== 'php' || \str_starts_with($relative, 'Resources/')) {
         continue;
     }
 
-    $relative = \substr($file->getPathname(), \strlen($dir) + 1, -4);
     $fqcn = $prefix . \str_replace('/', '\\', $relative);
     $loaded++;
 
@@ -50,4 +52,5 @@ foreach ($failures as $failure) {
     \printf("  FAIL %s\n", $failure);
 }
 
-exit($failures === [] ? 0 : 1);
+// Loading nothing proves nothing: a wrong path must not pass.
+exit($failures === [] && $loaded > 0 ? 0 : 1);

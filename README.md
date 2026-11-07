@@ -9,28 +9,31 @@ Doctrine ORM and ODM types as well.
 
 ## Install (pre-release)
 
-Neither package is on Packagist yet. Check them out side by side:
+Neither package is on Packagist yet:
 
 ```json
 {
     "repositories": [
-        { "type": "path", "url": "../../msstc4php/vo-base", "options": { "symlink": true } }
+        { "type": "vcs", "url": "https://github.com/msstc4php/vo-base" },
+        { "type": "vcs", "url": "https://github.com/msstc4symfony/vo-base-bridge" }
     ],
     "require": {
+        "msstc4php/vo-base": "dev-main",
         "msstc4symfony/vo-base-bridge": "dev-main"
     }
 }
 ```
 
-Doctrine is **not** required. Install the Doctrine bridge separately if you
-want the field types; the bundle picks it up on its own.
+Doctrine is **not** required. If you want the field types, also add
+`{ "type": "vcs", "url": "https://github.com/msstc4php/vo-base-doctrine-bridge" }` to `repositories` and
+require `msstc4php/vo-base-doctrine-bridge`; the bundle picks it up on its own.
 
 ## Enable the bundle
 
 ```php
 // config/bundles.php
 return [
-    Msstc4Symfony\VoBaseBridge\Bundle\ValueObjectBridgeBundle::class => ['all' => true],
+    Msstc4Symfony\VoBaseBridge\ValueObjectBridgeBundle::class => ['all' => true],
 ];
 ```
 
@@ -53,7 +56,7 @@ silent absence — useful when a deployment must not start without the types.
 ## Validating raw input
 
 ```php
-use Msstc4Symfony\VoBaseBridge\Validator\AssertEmailAddress;
+use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertEmailAddress;
 
 #[AssertEmailAddress]
 public string $email = '';
@@ -67,14 +70,14 @@ class name.
 ## Development
 
 ```
-make check   # php -l, PHPStan level 9, cs-fixer, composer validate/audit, Rector, deptrac
-make test    # PHPUnit: Validator, Bundle, Integration
+make check   # php -l, PHPStan level max, cs-fixer, composer validate/audit, Rector, deptrac
+make test    # PHPUnit: unit, integration
 make fix     # cs-fixer + Rector, applied
 ```
 
-The Doctrine stack sits in `require-dev` purely for the bundle and integration
-tests. A CI job removes all of it and still expects everything to load — that is
-what keeps "suggest, not require" honest.
+The Doctrine stack sits only in `composer-ci.json`, purely for the bundle and
+integration tests. A CI job installs `composer.json` without it and still expects
+every class to load — that is what keeps "suggest, not require" honest.
 
 [core]: ../../msstc4php/vo-base
 [doctrine]: ../../msstc4php/vo-base-doctrine-bridge
