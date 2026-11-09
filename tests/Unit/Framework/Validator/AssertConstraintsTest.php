@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Msstc4Symfony\VoBaseBridge\Test\Unit\Framework\Validator;
+namespace MSSTC4PHP\ValueObject\Bundle\Tests\Unit\Framework\Validator;
 
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertBic;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertCidr;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertCreditCardNumber;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertDecimal;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertDuration;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertEmailAddress;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertIban;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertIpRange;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertIpv4;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertPhoneNumber;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertSlug;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertTimeOfDay;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertUrl;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertUuid;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\ValidValueObjectValidator;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertBic;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertCidr;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertCreditCardNumber;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertDecimal;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertDuration;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertEmailAddress;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertIban;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertIpRange;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertIpv4;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertPhoneNumber;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertSlug;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertTimeOfDay;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertUrl;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertUuid;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\ValidValueObjectValidator;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

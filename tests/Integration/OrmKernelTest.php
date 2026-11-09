@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Msstc4Symfony\VoBaseBridge\Test\Integration;
+namespace MSSTC4PHP\ValueObject\Bundle\Tests\Integration;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertEmailAddress;
+use MSSTC4PHP\ValueObject\Bundle\Tests\Integration\Kernel\IntegrationKernel;
+use MSSTC4PHP\ValueObject\Doctrine\Orm\EmailAddressType;
 use MSSTC4PHP\ValueObject\Identity\EmailAddress;
-use MSSTC4PHP\ValueObjectDoctrineBridge\Orm\EmailAddressType;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertEmailAddress;
-use Msstc4Symfony\VoBaseBridge\Test\Integration\Kernel\IntegrationKernel;
 use Override;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\RequiresMethod;
@@ -75,7 +75,7 @@ final class OrmKernelTest extends TestCase
         // about this kernel rather than about global registry leftovers.
         $kernel = new IntegrationKernel(
             [new DoctrineBundle()],
-            ['doctrine' => self::DBAL_CONFIG, 'value_object_bridge' => ['orm' => false]],
+            ['doctrine' => self::DBAL_CONFIG, 'msstc4php_vo_base' => ['orm' => false]],
             'orm-disabled',
         );
         $kernel->boot();

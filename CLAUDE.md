@@ -4,17 +4,18 @@ Guidance for Claude Code in this repository. Deep references live under `.claude
 
 ## What this is
 
-Symfony bundle (`msstc4symfony/vo-base-bridge`, namespace `Msstc4Symfony\VoBaseBridge`, config alias
-`value_object_bridge`): Validator constraints for `msstc4php/vo-base`, plus Doctrine type registration when
-`msstc4php/vo-base-doctrine-bridge` is installed. PHP >= 8.4 (`php84` profile), Symfony 7.4 / 8.x.
+Symfony bundle (`msstc4php/vo-base-bundle`, namespace `MSSTC4PHP\ValueObject\Bundle`, config alias
+`msstc4php_vo_base`): Validator constraints for `msstc4php/vo-base`, plus Doctrine type registration when
+`msstc4php/vo-base-doctrine` is installed. PHP >= 8.4 (`php84` profile), Symfony 7.4 / 8.x.
 
 ## Common commands
 
-Local install against the sibling `../../msstc4php` checkouts: `COMPOSER=composer-local.json composer update
+Local install against the sibling `../vo-base` and `../vo-base-doctrine` checkouts: `COMPOSER=composer-local.json composer update
 --ignore-platform-req=php`. In CI the install is `composer-ci.json`.
 
 - `COMPOSER=composer-local.json make check`, `make test`, `make infection`, `make fix`.
-- `php ../bundle-standard/bin/verify-standard.php .` — standard compliance (the same check CI runs).
+- `php ~/PhpstormProjects/msstc4symfony/bundle-standard/bin/verify-standard.php .` — standard compliance (the same
+  check CI runs).
 
 ## Pointers
 

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Msstc4Symfony\VoBaseBridge\Test\Integration\Kernel;
+namespace MSSTC4PHP\ValueObject\Bundle\Tests\Integration\Kernel;
 
-use Msstc4Symfony\VoBaseBridge\ValueObjectBridgeBundle;
+use MSSTC4PHP\ValueObject\Bundle\Msstc4phpVoBaseBundle;
 use Override;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -40,7 +40,7 @@ final class IntegrationKernel extends Kernel
     {
         yield new FrameworkBundle();
         yield from $this->extraBundles;
-        yield new ValueObjectBridgeBundle();
+        yield new Msstc4phpVoBaseBundle();
     }
 
     #[Override]
@@ -65,12 +65,12 @@ final class IntegrationKernel extends Kernel
     #[Override]
     public function getCacheDir(): string
     {
-        return \sys_get_temp_dir() . '/vo-bridge-kernel/' . $this->id . '/cache';
+        return \sys_get_temp_dir() . '/vo-base-bundle-kernel/' . $this->id . '/cache';
     }
 
     #[Override]
     public function getLogDir(): string
     {
-        return \sys_get_temp_dir() . '/vo-bridge-kernel/' . $this->id . '/log';
+        return \sys_get_temp_dir() . '/vo-base-bundle-kernel/' . $this->id . '/log';
     }
 }

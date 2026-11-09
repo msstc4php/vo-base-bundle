@@ -43,7 +43,7 @@ deptrac:
         - name: BundleRoot
           collectors:
               - type: classLike
-                value: ^Msstc4Symfony\\VoBaseBridge\\ValueObjectBridgeBundle$
+                value: ^MSSTC4PHP\\ValueObject\\Bundle\\Msstc4phpVoBaseBundle$
 
     ruleset:
         Domain: ~

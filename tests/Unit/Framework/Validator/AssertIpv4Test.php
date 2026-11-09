@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Msstc4Symfony\VoBaseBridge\Test\Unit\Framework\Validator;
+namespace MSSTC4PHP\ValueObject\Bundle\Tests\Unit\Framework\Validator;
 
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertIpv4;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\ValidValueObjectValidator;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertIpv4;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\ValidValueObjectValidator;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;

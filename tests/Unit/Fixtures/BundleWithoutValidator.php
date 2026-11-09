@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Msstc4Symfony\VoBaseBridge\Test\Unit\Fixtures;
+namespace MSSTC4PHP\ValueObject\Bundle\Tests\Unit\Fixtures;
 
-use Msstc4Symfony\VoBaseBridge\ValueObjectBridgeBundle;
+use MSSTC4PHP\ValueObject\Bundle\Msstc4phpVoBaseBundle;
 use Override;
 
 /** Simulates symfony/validator not being installed. */
-final class BundleWithoutValidator extends ValueObjectBridgeBundle
+final class BundleWithoutValidator extends Msstc4phpVoBaseBundle
 {
     #[Override]
     protected function validatorAvailable(): bool

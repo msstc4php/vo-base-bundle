@@ -1,10 +1,10 @@
-# msstc4symfony/vo-base-bridge
+# msstc4php/vo-base-bundle
 
 Symfony Validator constraints and a bundle for
 [`msstc4php/vo-base`][core].
 
 One line in `bundles.php` registers the constraint validator and — if
-[`msstc4php/vo-base-doctrine-bridge`][doctrine] happens to be installed — the
+[`msstc4php/vo-base-doctrine`][doctrine] happens to be installed — the
 Doctrine ORM and ODM types as well.
 
 ## Install
@@ -15,24 +15,24 @@ Neither package is on Packagist yet:
 {
     "repositories": [
         { "type": "vcs", "url": "https://github.com/msstc4php/vo-base" },
-        { "type": "vcs", "url": "https://github.com/msstc4symfony/vo-base-bridge" }
+        { "type": "vcs", "url": "https://github.com/msstc4php/vo-base-bundle" }
     ],
     "require": {
-        "msstc4symfony/vo-base-bridge": "^0.3"
+        "msstc4php/vo-base-bundle": "^0.4"
     }
 }
 ```
 
 Doctrine is **not** required. If you want the field types, also add
-`{ "type": "vcs", "url": "https://github.com/msstc4php/vo-base-doctrine-bridge" }` to `repositories` and
-require `msstc4php/vo-base-doctrine-bridge:^0.4`; the bundle picks it up on its own.
+`{ "type": "vcs", "url": "https://github.com/msstc4php/vo-base-doctrine" }` to `repositories` and
+require `msstc4php/vo-base-doctrine:^0.5`; the bundle picks it up on its own.
 
 ## Enable the bundle
 
 ```php
 // config/bundles.php
 return [
-    Msstc4Symfony\VoBaseBridge\ValueObjectBridgeBundle::class => ['all' => true],
+    MSSTC4PHP\ValueObject\Bundle\Msstc4phpVoBaseBundle::class => ['all' => true],
 ];
 ```
 
@@ -42,8 +42,8 @@ is installed and its extension is present, and stays quiet otherwise.
 ## Configuration
 
 ```yaml
-# config/packages/value_object_bridge.yaml
-value_object_bridge:
+# config/packages/msstc4php_vo_base.yaml
+msstc4php_vo_base:
     orm: ~        # null auto-detects, false suppresses, true demands
     odm: ~
     validator: ~
@@ -55,7 +55,7 @@ silent absence — useful when a deployment must not start without the types.
 ## Validating raw input
 
 ```php
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\AssertEmailAddress;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertEmailAddress;
 
 #[AssertEmailAddress]
 public string $email = '';
@@ -79,4 +79,4 @@ integration tests. A CI job installs `composer.json` without it and still expect
 every class to load — that is what keeps "suggest, not require" honest.
 
 [core]: https://github.com/msstc4php/vo-base
-[doctrine]: https://github.com/msstc4php/vo-base-doctrine-bridge
+[doctrine]: https://github.com/msstc4php/vo-base-doctrine

@@ -2,10 +2,10 @@
 
 ## The bundle
 
-One line in `bundles.php`. Extension alias: `value_object_bridge`.
+One line in `bundles.php`. Extension alias: `msstc4php_vo_base`.
 
 ```yaml
-value_object_bridge:
+msstc4php_vo_base:
     orm: ~        # null auto-detects; false suppresses; true demands
     odm: ~
     validator: ~

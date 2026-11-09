@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Msstc4Symfony\VoBaseBridge\Test\Unit\Fixtures;
+namespace MSSTC4PHP\ValueObject\Bundle\Tests\Unit\Fixtures;
 
-use Msstc4Symfony\VoBaseBridge\ValueObjectBridgeBundle;
+use MSSTC4PHP\ValueObject\Bundle\Msstc4phpVoBaseBundle;
 use Override;
 
-/** Simulates the Doctrine bridge package not being installed. */
-final class BundleWithoutDoctrinePackage extends ValueObjectBridgeBundle
+/** Simulates msstc4php/vo-base-doctrine not being installed. */
+final class BundleWithoutDoctrinePackage extends Msstc4phpVoBaseBundle
 {
     // The alias is derived from the class name, so it must be pinned or the
     // subclass would look for configuration under its own name.
-    protected string $extensionAlias = 'value_object_bridge';
+    protected string $extensionAlias = 'msstc4php_vo_base';
 
     #[Override]
     protected function ormTypes(): ?array

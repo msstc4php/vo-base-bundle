@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Msstc4Symfony\VoBaseBridge\Framework\Validator;
+namespace MSSTC4PHP\ValueObject\Bundle\Framework\Validator;
 
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use Override;

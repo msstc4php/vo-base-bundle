@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Msstc4Symfony\VoBaseBridge\Test\Integration;
+namespace MSSTC4PHP\ValueObject\Bundle\Tests\Integration;
 
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\ValidValueObjectValidator;
-use Msstc4Symfony\VoBaseBridge\Test\Support\TestConfigurator;
-use Msstc4Symfony\VoBaseBridge\ValueObjectBridgeBundle;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\ValidValueObjectValidator;
+use MSSTC4PHP\ValueObject\Bundle\Msstc4phpVoBaseBundle;
+use MSSTC4PHP\ValueObject\Bundle\Tests\Support\TestConfigurator;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -33,7 +33,7 @@ final class ValidatorRegistrationTest extends TestCase
     {
         $container = new ContainerBuilder();
 
-        new ValueObjectBridgeBundle()->loadExtension($config, TestConfigurator::for($container), $container);
+        new Msstc4phpVoBaseBundle()->loadExtension($config, TestConfigurator::for($container), $container);
 
         self::assertTrue($container->hasDefinition(ValidValueObjectValidator::class));
         self::assertArrayHasKey(

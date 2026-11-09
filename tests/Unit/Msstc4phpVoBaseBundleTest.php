@@ -2,41 +2,41 @@
 
 declare(strict_types=1);
 
-namespace Msstc4Symfony\VoBaseBridge\Test\Unit;
+namespace MSSTC4PHP\ValueObject\Bundle\Tests\Unit;
 
 use Doctrine\DBAL\Types\Type;
 use LogicException;
-use MSSTC4PHP\ValueObjectDoctrineBridge\Odm\TypeRegistrar as OdmRegistrar;
-use MSSTC4PHP\ValueObjectDoctrineBridge\Orm\TypeRegistrar as OrmRegistrar;
-use Msstc4Symfony\VoBaseBridge\Framework\Validator\ValidValueObjectValidator;
-use Msstc4Symfony\VoBaseBridge\Test\Support\TestConfigurator;
-use Msstc4Symfony\VoBaseBridge\Test\Unit\Fixtures\BundleWithoutDoctrinePackage;
-use Msstc4Symfony\VoBaseBridge\Test\Unit\Fixtures\BundleWithoutValidator;
-use Msstc4Symfony\VoBaseBridge\Test\Unit\Fixtures\StubExtension;
-use Msstc4Symfony\VoBaseBridge\ValueObjectBridgeBundle;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\ValidValueObjectValidator;
+use MSSTC4PHP\ValueObject\Bundle\Msstc4phpVoBaseBundle;
+use MSSTC4PHP\ValueObject\Bundle\Tests\Support\TestConfigurator;
+use MSSTC4PHP\ValueObject\Bundle\Tests\Unit\Fixtures\BundleWithoutDoctrinePackage;
+use MSSTC4PHP\ValueObject\Bundle\Tests\Unit\Fixtures\BundleWithoutValidator;
+use MSSTC4PHP\ValueObject\Bundle\Tests\Unit\Fixtures\StubExtension;
+use MSSTC4PHP\ValueObject\Doctrine\Odm\TypeRegistrar as OdmRegistrar;
+use MSSTC4PHP\ValueObject\Doctrine\Orm\TypeRegistrar as OrmRegistrar;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
-#[CoversClass(ValueObjectBridgeBundle::class)]
-final class ValueObjectBridgeBundleTest extends TestCase
+#[CoversClass(Msstc4phpVoBaseBundle::class)]
+final class Msstc4phpVoBaseBundleTest extends TestCase
 {
     public function testExtensionAliasIsDerivedFromTheBundleName(): void
     {
-        $extension = new ValueObjectBridgeBundle()->getContainerExtension();
+        $extension = new Msstc4phpVoBaseBundle()->getContainerExtension();
 
         self::assertNotNull($extension);
-        self::assertSame('value_object_bridge', $extension->getAlias());
+        self::assertSame('msstc4php_vo_base', $extension->getAlias());
     }
 
     public function testOrmTypesArePrependedWhenBothPackageAndExtensionArePresent(): void
     {
-        $this->requireDoctrineBridge();
+        $this->requireDoctrinePackage();
 
         $container = $this->containerWith(['doctrine']);
 
-        new ValueObjectBridgeBundle()->prependExtension($this->configurator($container), $container);
+        new Msstc4phpVoBaseBundle()->prependExtension($this->configurator($container), $container);
 
         $prepended = $container->getExtensionConfig('doctrine');
         self::assertSame([['dbal' => ['types' => OrmRegistrar::types()]]], $prepended);
@@ -44,11 +44,11 @@ final class ValueObjectBridgeBundleTest extends TestCase
 
     public function testOdmTypesArePrependedIntoTheirOwnExtension(): void
     {
-        $this->requireDoctrineBridge();
+        $this->requireDoctrinePackage();
 
         $container = $this->containerWith(['doctrine_mongodb']);
 
-        new ValueObjectBridgeBundle()->prependExtension($this->configurator($container), $container);
+        new Msstc4phpVoBaseBundle()->prependExtension($this->configurator($container), $container);
 
         self::assertSame([['types' => OdmRegistrar::types()]], $container->getExtensionConfig('doctrine_mongodb'));
     }
@@ -59,11 +59,11 @@ final class ValueObjectBridgeBundleTest extends TestCase
      */
     public function testBothExtensionsGetTheirOwnBranch(): void
     {
-        $this->requireDoctrineBridge();
+        $this->requireDoctrinePackage();
 
         $container = $this->containerWith(['doctrine', 'doctrine_mongodb']);
 
-        new ValueObjectBridgeBundle()->prependExtension($this->configurator($container), $container);
+        new Msstc4phpVoBaseBundle()->prependExtension($this->configurator($container), $container);
 
         $orm = $this->typeMap($container->getExtensionConfig('doctrine')[0] ?? null, 'dbal');
         $odm = $this->typeMap($container->getExtensionConfig('doctrine_mongodb')[0] ?? null, null);
@@ -81,18 +81,18 @@ final class ValueObjectBridgeBundleTest extends TestCase
 
     public function testNothingHappensWhenTheDoctrineExtensionIsAbsent(): void
     {
-        $this->requireDoctrineBridge();
+        $this->requireDoctrinePackage();
 
         $container = $this->containerWith([]);
 
-        new ValueObjectBridgeBundle()->prependExtension($this->configurator($container), $container);
+        new Msstc4phpVoBaseBundle()->prependExtension($this->configurator($container), $container);
 
         self::assertSame([], $container->getExtensionConfig('doctrine'));
     }
 
     /**
      * The scenario KTD3 exists for: the Doctrine extension is there, but the
-     * bridge package is not installed. Silence, not an error.
+     * Doctrine package is not installed. Silence, not an error.
      */
     public function testNothingHappensWhenTheDoctrinePackageIsAbsent(): void
     {
@@ -106,12 +106,12 @@ final class ValueObjectBridgeBundleTest extends TestCase
 
     public function testExplicitFalseSuppressesRegistration(): void
     {
-        $this->requireDoctrineBridge();
+        $this->requireDoctrinePackage();
 
         $container = $this->containerWith(['doctrine']);
-        $container->prependExtensionConfig('value_object_bridge', ['orm' => false]);
+        $container->prependExtensionConfig('msstc4php_vo_base', ['orm' => false]);
 
-        new ValueObjectBridgeBundle()->prependExtension($this->configurator($container), $container);
+        new Msstc4phpVoBaseBundle()->prependExtension($this->configurator($container), $container);
 
         self::assertSame([], $container->getExtensionConfig('doctrine'));
     }
@@ -119,33 +119,33 @@ final class ValueObjectBridgeBundleTest extends TestCase
     public function testExplicitTrueFailsLoudlyWhenThePackageIsMissing(): void
     {
         $container = $this->containerWith(['doctrine']);
-        $container->prependExtensionConfig('value_object_bridge', ['orm' => true]);
+        $container->prependExtensionConfig('msstc4php_vo_base', ['orm' => true]);
 
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessageMatches('/vo-base-doctrine-bridge or the Doctrine stack it needs is not installed/');
+        $this->expectExceptionMessageMatches('#msstc4php/vo-base-doctrine or the Doctrine stack it needs is not installed#');
 
         new BundleWithoutDoctrinePackage()->prependExtension($this->configurator($container), $container);
     }
 
     public function testExplicitTrueFailsLoudlyWhenTheExtensionIsMissing(): void
     {
-        $this->requireDoctrineBridge();
+        $this->requireDoctrinePackage();
 
         $container = $this->containerWith([]);
-        $container->prependExtensionConfig('value_object_bridge', ['orm' => true]);
+        $container->prependExtensionConfig('msstc4php_vo_base', ['orm' => true]);
 
         $this->expectException(LogicException::class);
         $this->expectExceptionMessageMatches('/"doctrine" extension is not registered/');
 
-        new ValueObjectBridgeBundle()->prependExtension($this->configurator($container), $container);
+        new Msstc4phpVoBaseBundle()->prependExtension($this->configurator($container), $container);
     }
 
     public function testPrependingTwiceDoesNotDuplicateTypes(): void
     {
-        $this->requireDoctrineBridge();
+        $this->requireDoctrinePackage();
 
         $container = $this->containerWith(['doctrine']);
-        $bundle = new ValueObjectBridgeBundle();
+        $bundle = new Msstc4phpVoBaseBundle();
 
         $bundle->prependExtension($this->configurator($container), $container);
         $bundle->prependExtension($this->configurator($container), $container);
@@ -159,16 +159,16 @@ final class ValueObjectBridgeBundleTest extends TestCase
     {
         $container = new ContainerBuilder();
 
-        new ValueObjectBridgeBundle()->loadExtension(['validator' => false], $this->configurator($container), $container);
+        new Msstc4phpVoBaseBundle()->loadExtension(['validator' => false], $this->configurator($container), $container);
 
         self::assertFalse($container->hasDefinition(ValidValueObjectValidator::class));
     }
 
     public function testALaterConfigBlockSwitchesTypesOff(): void
     {
-        $this->requireDoctrineBridge();
+        $this->requireDoctrinePackage();
 
-        $bundle = new ValueObjectBridgeBundle();
+        $bundle = new Msstc4phpVoBaseBundle();
         $container = $this->containerWith(['doctrine']);
         $this->loadBlocks($bundle, $container, [['validator' => true], ['orm' => false]]);
 
@@ -190,12 +190,12 @@ final class ValueObjectBridgeBundleTest extends TestCase
 
     public function testAParameterAsFlagFailsInsteadOfMeaningAutoDetect(): void
     {
-        $bundle = new ValueObjectBridgeBundle();
+        $bundle = new Msstc4phpVoBaseBundle();
         $container = $this->containerWith(['doctrine']);
         $this->loadBlocks($bundle, $container, [['orm' => '%orm_enabled%']]);
 
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('value_object_bridge.orm must be a literal boolean or null.');
+        $this->expectExceptionMessage('msstc4php_vo_base.orm must be a literal boolean or null.');
 
         $bundle->prependExtension($this->configurator($container), $container);
     }
@@ -233,27 +233,27 @@ final class ValueObjectBridgeBundleTest extends TestCase
     /**
      * @param list<array<string, bool|string>> $blocks
      */
-    private function loadBlocks(ValueObjectBridgeBundle $bundle, ContainerBuilder $container, array $blocks): void
+    private function loadBlocks(Msstc4phpVoBaseBundle $bundle, ContainerBuilder $container, array $blocks): void
     {
         $extension = $bundle->getContainerExtension();
         self::assertNotNull($extension);
         $container->registerExtension($extension);
 
         foreach ($blocks as $block) {
-            $container->loadFromExtension('value_object_bridge', $block);
+            $container->loadFromExtension('msstc4php_vo_base', $block);
         }
     }
 
     /**
-     * The positive paths need the Doctrine bridge and the Doctrine stack behind
+     * The positive paths need the Doctrine package and the Doctrine stack behind
      * it. Skipping rather than failing keeps this suite meaningful in the CI job
      * that removes both to prove the bundle works without them -- the negative
      * paths still run there, which is exactly what that job is checking.
      */
-    private function requireDoctrineBridge(): void
+    private function requireDoctrinePackage(): void
     {
         if (!\class_exists(OrmRegistrar::class) || !\class_exists(Type::class)) {
-            self::markTestSkipped('The Doctrine bridge package and its Doctrine stack are not installed.');
+            self::markTestSkipped('msstc4php/vo-base-doctrine and its Doctrine stack are not installed.');
         }
     }
 

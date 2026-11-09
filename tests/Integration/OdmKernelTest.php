@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Msstc4Symfony\VoBaseBridge\Test\Integration;
+namespace MSSTC4PHP\ValueObject\Bundle\Tests\Integration;
 
 use Doctrine\Bundle\MongoDBBundle\DoctrineMongoDBBundle;
 use Doctrine\ODM\MongoDB\Types\Type;
+use MSSTC4PHP\ValueObject\Bundle\Tests\Integration\Kernel\IntegrationKernel;
+use MSSTC4PHP\ValueObject\Doctrine\Odm\EmailAddressType;
 use MSSTC4PHP\ValueObject\Identity\EmailAddress;
-use MSSTC4PHP\ValueObjectDoctrineBridge\Odm\EmailAddressType;
-use Msstc4Symfony\VoBaseBridge\Test\Integration\Kernel\IntegrationKernel;
 use Override;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\RequiresMethod;
@@ -28,7 +28,7 @@ final class OdmKernelTest extends TestCase
 {
     private const array ODM_CONFIG = [
         'connections' => ['default' => ['server' => 'mongodb://localhost:27017']],
-        'default_database' => 'vo_bridge_test',
+        'default_database' => 'vo_base_bundle_test',
         'document_managers' => ['default' => ['mappings' => []]],
     ];
 

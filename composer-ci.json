@@ -1,5 +1,5 @@
 {
-    "name": "msstc4symfony/vo-base-bridge",
+    "name": "msstc4php/vo-base-bundle",
     "description": "Symfony Validator constraints and a bundle for msstc4php/vo-base. (CI profile: optional libraries and CI-only tools)",
     "type": "symfony-bundle",
     "license": "MIT",
@@ -20,7 +20,7 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/msstc4php/vo-base-doctrine-bridge"
+            "url": "https://github.com/msstc4php/vo-base-doctrine"
         }
     ],
     "require": {
@@ -39,7 +39,7 @@
         "doctrine/orm": "^3.3",
         "friendsofphp/php-cs-fixer": "^3.76",
         "infection/infection": "^0.32",
-        "msstc4php/vo-base-doctrine-bridge": "^0.4",
+        "msstc4php/vo-base-doctrine": "^0.5",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",
@@ -55,16 +55,16 @@
     },
     "suggest": {
         "symfony/validator": "To validate raw input against value object rules via constraints.",
-        "msstc4php/vo-base-doctrine-bridge": "To have the bundle register the Doctrine ORM/ODM types as well."
+        "msstc4php/vo-base-doctrine": "To have the bundle register the Doctrine ORM/ODM types as well."
     },
     "autoload": {
         "psr-4": {
-            "Msstc4Symfony\\VoBaseBridge\\": "src/"
+            "MSSTC4PHP\\ValueObject\\Bundle\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Msstc4Symfony\\VoBaseBridge\\Test\\": "tests/"
+            "MSSTC4PHP\\ValueObject\\Bundle\\Tests\\": "tests/"
         }
     },
     "config": {
@@ -81,6 +81,8 @@
         }
     ],
     "conflict": {
+        "msstc4php/vo-base-doctrine-bridge": "*",
+        "msstc4symfony/vo-base-bridge": "*",
         "symfony/symfony": "*"
     },
     "extra": {

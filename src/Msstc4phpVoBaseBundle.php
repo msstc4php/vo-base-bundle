@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Msstc4Symfony\VoBaseBridge;
+namespace MSSTC4PHP\ValueObject\Bundle;
 
 use Doctrine\DBAL\Types\Type;
 use LogicException;
-use MSSTC4PHP\ValueObjectDoctrineBridge\Orm\TypeRegistrar;
+use MSSTC4PHP\ValueObject\Doctrine\Orm\TypeRegistrar;
 use Override;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -24,25 +24,22 @@ use Symfony\Component\Validator\Constraint;
  * The Doctrine types live in a separate package this one only suggests, so the
  * gate is doubled: the registrar class has to exist (package installed) and the
  * Doctrine extension has to be there (somewhere to prepend into). Requiring the
- * package instead would hand 74 types to a Symfony consumer who has no Doctrine
+ * package instead would hand every Doctrine type to a Symfony consumer with no Doctrine
  * at all, and tie the two release cycles together.
- *
- * The bundle's name is deliberately neutral: it spans both packages, so naming
- * it after either would mislead about the groups it controls.
  *
  * Not final: a bundle is a framework extension point, and overriding the two
  * registrar lookups is how the "package not installed" path gets exercised
  * without uninstalling it.
  */
-class ValueObjectBridgeBundle extends AbstractBundle
+class Msstc4phpVoBaseBundle extends AbstractBundle
 {
     private const string ORM_REGISTRAR = TypeRegistrar::class;
 
-    private const string ODM_REGISTRAR = \MSSTC4PHP\ValueObjectDoctrineBridge\Odm\TypeRegistrar::class;
+    private const string ODM_REGISTRAR = \MSSTC4PHP\ValueObject\Doctrine\Odm\TypeRegistrar::class;
 
     // The registrar existing is not enough. Its type map names classes that
     // extend the Doctrine base type, and reading the map autoloads them, so a
-    // consumer who installed the bridge package for ODM only would fatal on the
+    // consumer who installed the Doctrine package for ODM only would fatal on the
     // ORM path. Both halves are therefore checked.
     private const string ORM_BASE = Type::class;
 
@@ -54,10 +51,10 @@ class ValueObjectBridgeBundle extends AbstractBundle
         $definition->rootNode()
             ->children()
                 ->booleanNode('orm')->defaultNull()
-                    ->info('Register the DBAL types. Null auto-detects; true fails if the Doctrine bridge or the doctrine extension is missing.')
+                    ->info('Register the DBAL types. Null auto-detects; true fails if msstc4php/vo-base-doctrine or the doctrine extension is missing.')
                 ->end()
                 ->booleanNode('odm')->defaultNull()
-                    ->info('Register the ODM types. Null auto-detects; true fails if the Doctrine bridge or the doctrine_mongodb extension is missing.')
+                    ->info('Register the ODM types. Null auto-detects; true fails if msstc4php/vo-base-doctrine or the doctrine_mongodb extension is missing.')
                 ->end()
                 ->booleanNode('validator')->defaultNull()
                     ->info('Register the ValidValueObject constraint validator. Null auto-detects.')
@@ -112,7 +109,7 @@ class ValueObjectBridgeBundle extends AbstractBundle
         }
 
         if ($requested === true && !$available) {
-            throw new LogicException('value_object_bridge.validator is enabled but symfony/validator is not installed.');
+            throw new LogicException('msstc4php_vo_base.validator is enabled but symfony/validator is not installed.');
         }
 
         $configurator->import(__DIR__ . '/Resources/config/validator.php');
@@ -124,7 +121,7 @@ class ValueObjectBridgeBundle extends AbstractBundle
     }
 
     /**
-     * @return array<string, class-string>|null null when the Doctrine bridge package is absent
+     * @return array<string, class-string>|null null when msstc4php/vo-base-doctrine is absent
      */
     protected function ormTypes(): ?array
     {
@@ -132,7 +129,7 @@ class ValueObjectBridgeBundle extends AbstractBundle
     }
 
     /**
-     * @return array<string, class-string>|null null when the Doctrine bridge package is absent
+     * @return array<string, class-string>|null null when msstc4php/vo-base-doctrine is absent
      */
     protected function odmTypes(): ?array
     {
@@ -159,7 +156,11 @@ class ValueObjectBridgeBundle extends AbstractBundle
 
         if (!$available) {
             if ($requested === true) {
-                throw new LogicException(\sprintf('value_object_bridge.%s is enabled but %s.', $node, $types === null ? 'msstc4php/vo-base-doctrine-bridge or the Doctrine stack it needs is not installed' : \sprintf('the "%s" extension is not registered', $extension)));
+                $reason = $types === null
+                    ? 'msstc4php/vo-base-doctrine or the Doctrine stack it needs is not installed'
+                    : \sprintf('the "%s" extension is not registered', $extension);
+
+                throw new LogicException(\sprintf('msstc4php_vo_base.%s is enabled but %s.', $node, $reason));
             }
 
             return;
@@ -192,7 +193,7 @@ class ValueObjectBridgeBundle extends AbstractBundle
 
         // prependExtension() sees unresolved values: a parameter here would silently mean auto-detect.
         if ($value !== null && !\is_bool($value)) {
-            throw new LogicException(\sprintf('value_object_bridge.%s must be a literal boolean or null.', $key));
+            throw new LogicException(\sprintf('msstc4php_vo_base.%s must be a literal boolean or null.', $key));
         }
 
         return $value;

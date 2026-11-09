@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Msstc4Symfony\VoBaseBridge\Test\Unit\Fixtures;
+namespace MSSTC4PHP\ValueObject\Bundle\Tests\Unit\Fixtures;
 
 use Override;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

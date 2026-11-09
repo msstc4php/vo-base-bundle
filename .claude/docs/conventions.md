@@ -1,22 +1,26 @@
 # Conventions
 
-## Neutral bundle name, on purpose
+## Package family naming (since 2026-11-09 UTC)
 
-`ValueObjectBridgeBundle` and `value_object_bridge` carry no package name, even
-though this package lives under `Msstc4Symfony\VoBaseBridge`. The
-bundle spans both packages — it registers Doctrine types as well — so naming it
-after either would mislead about the groups it controls.
+The family follows the convention of third-party libraries with framework add-ons (`ramsey/uuid` →
+`ramsey/uuid-doctrine`): one vendor, the core name plus the integration as a suffix, `-bundle` for the package that
+ships a Symfony bundle class.
 
-## Separate namespace roots, not a shared prefix
+| Package | Namespace root |
+|---|---|
+| `msstc4php/vo-base` | `MSSTC4PHP\ValueObject\` |
+| `msstc4php/vo-base-doctrine` | `MSSTC4PHP\ValueObject\Doctrine\` |
+| `msstc4php/vo-base-bundle` | `MSSTC4PHP\ValueObject\Bundle\` |
 
-`Msstc4Symfony\VoBaseBridge\` and
-`MSSTC4PHP\ValueObjectDoctrineBridge\` rather than a common prefix. Two independent packages under one PSR-4 prefix
-are legal, but then an FQCN no longer says which package brought the class, and
-a partial install looks like a hole in one tree.
+The shared prefix is safe because the segment after `ValueObject\` names the package: an FQCN still says which
+package brought the class. The core must never get a `src/Doctrine/` or `src/Bundle/` directory.
+
+The bundle class follows Symfony's `<Vendor><Name>Bundle` rule, so the config alias derived from it is
+`msstc4php_vo_base`. Tests live under `<root>Tests\` in all three packages.
 
 ## Doctrine in require-dev only
 
-The Doctrine stack and the bridge package are dev dependencies, present solely
+The Doctrine stack and `msstc4php/vo-base-doctrine` are dev dependencies, present solely
 for the bundle and integration tests. The CI isolation job removes all of them
 and still expects everything to load — that job is what keeps the "suggest, not
 require" claim honest.
