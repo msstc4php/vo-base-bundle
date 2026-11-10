@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MSSTC4PHP\ValueObject\Bundle\Tests\Integration;
+namespace MSSTC4PHP\ValueObject\Bundle\Test\Integration;
 
 use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\ValidValueObjectValidator;
 use MSSTC4PHP\ValueObject\Bundle\Msstc4phpVoBaseBundle;
-use MSSTC4PHP\ValueObject\Bundle\Tests\Support\TestConfigurator;
+use MSSTC4PHP\ValueObject\Bundle\Test\Support\TestConfigurator;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;

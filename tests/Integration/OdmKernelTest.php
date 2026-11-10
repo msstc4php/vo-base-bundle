@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MSSTC4PHP\ValueObject\Bundle\Tests\Integration;
+namespace MSSTC4PHP\ValueObject\Bundle\Test\Integration;
 
 use Doctrine\Bundle\MongoDBBundle\DoctrineMongoDBBundle;
 use Doctrine\ODM\MongoDB\Types\Type;
-use MSSTC4PHP\ValueObject\Bundle\Tests\Integration\Kernel\IntegrationKernel;
+use MSSTC4PHP\ValueObject\Bundle\Test\Integration\Kernel\IntegrationKernel;
 use MSSTC4PHP\ValueObject\Doctrine\Odm\EmailAddressType;
 use MSSTC4PHP\ValueObject\Identity\EmailAddress;
 use Override;

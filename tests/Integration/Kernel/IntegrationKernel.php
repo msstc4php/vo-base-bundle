@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MSSTC4PHP\ValueObject\Bundle\Tests\Integration\Kernel;
+namespace MSSTC4PHP\ValueObject\Bundle\Test\Integration\Kernel;
 
 use MSSTC4PHP\ValueObject\Bundle\Msstc4phpVoBaseBundle;
 use Override;

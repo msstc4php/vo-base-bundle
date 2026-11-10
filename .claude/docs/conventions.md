@@ -16,7 +16,7 @@ The shared prefix is safe because the segment after `ValueObject\` names the pac
 package brought the class. The core must never get a `src/Doctrine/` or `src/Bundle/` directory.
 
 The bundle class follows Symfony's `<Vendor><Name>Bundle` rule, so the config alias derived from it is
-`msstc4php_vo_base`. Tests live under `<root>Tests\` in all three packages.
+`msstc4php_vo_base`. Tests live under `<root>Tests\` in the core and the Doctrine package, and under `<root>Test\` here: the bundle follows `msstc4symfony/bundle-standard`, whose bundles all use `Test` (decided 2026-11-10 UTC).
 
 ## Doctrine in require-dev only
 

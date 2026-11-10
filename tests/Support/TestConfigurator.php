@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MSSTC4PHP\ValueObject\Bundle\Tests\Support;
+namespace MSSTC4PHP\ValueObject\Bundle\Test\Support;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

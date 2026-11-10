@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace MSSTC4PHP\ValueObject\Bundle\Tests\Integration;
+namespace MSSTC4PHP\ValueObject\Bundle\Test\Integration;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
 use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertEmailAddress;
-use MSSTC4PHP\ValueObject\Bundle\Tests\Integration\Kernel\IntegrationKernel;
+use MSSTC4PHP\ValueObject\Bundle\Test\Integration\Kernel\IntegrationKernel;
 use MSSTC4PHP\ValueObject\Doctrine\Orm\EmailAddressType;
 use MSSTC4PHP\ValueObject\Identity\EmailAddress;
 use Override;

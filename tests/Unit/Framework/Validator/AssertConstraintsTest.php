@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MSSTC4PHP\ValueObject\Bundle\Tests\Unit\Framework\Validator;
+namespace MSSTC4PHP\ValueObject\Bundle\Test\Unit\Framework\Validator;
 
 use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertBic;
 use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertCidr;

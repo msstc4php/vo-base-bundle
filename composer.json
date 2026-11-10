@@ -54,7 +54,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "MSSTC4PHP\\ValueObject\\Bundle\\Tests\\": "tests/"
+            "MSSTC4PHP\\ValueObject\\Bundle\\Test\\": "tests/"
         }
     },
     "config": {

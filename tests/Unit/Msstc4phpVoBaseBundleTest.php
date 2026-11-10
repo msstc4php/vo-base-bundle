@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace MSSTC4PHP\ValueObject\Bundle\Tests\Unit;
+namespace MSSTC4PHP\ValueObject\Bundle\Test\Unit;
 
 use Doctrine\DBAL\Types\Type;
 use LogicException;
 use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\ValidValueObjectValidator;
 use MSSTC4PHP\ValueObject\Bundle\Msstc4phpVoBaseBundle;
-use MSSTC4PHP\ValueObject\Bundle\Tests\Support\TestConfigurator;
-use MSSTC4PHP\ValueObject\Bundle\Tests\Unit\Fixtures\BundleWithoutDoctrinePackage;
-use MSSTC4PHP\ValueObject\Bundle\Tests\Unit\Fixtures\BundleWithoutValidator;
-use MSSTC4PHP\ValueObject\Bundle\Tests\Unit\Fixtures\StubExtension;
+use MSSTC4PHP\ValueObject\Bundle\Test\Support\TestConfigurator;
+use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleWithoutDoctrinePackage;
+use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleWithoutValidator;
+use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\StubExtension;
 use MSSTC4PHP\ValueObject\Doctrine\Odm\TypeRegistrar as OdmRegistrar;
 use MSSTC4PHP\ValueObject\Doctrine\Orm\TypeRegistrar as OrmRegistrar;
 use PHPUnit\Framework\Attributes\CoversClass;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MSSTC4PHP\ValueObject\Bundle\Tests\Unit\Fixtures;
+namespace MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures;
 
 use MSSTC4PHP\ValueObject\Bundle\Msstc4phpVoBaseBundle;
 use Override;
