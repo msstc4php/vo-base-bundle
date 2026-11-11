@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Bundle\Test\Integration;
 
+use MSSTC4PHP\ValueObject\Bundle\Test\Integration\Fixture\SignUp;
 use MSSTC4PHP\ValueObject\Bundle\Test\Integration\Kernel\IntegrationKernel;
 use MSSTC4PHP\ValueObject\Identity\EmailAddress;
 use MSSTC4PHP\ValueObject\Network\Port;
@@ -13,9 +14,15 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestPayloadValueResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
+use Symfony\Component\HttpKernel\Event\ControllerArgumentsEvent;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
  * The real FrameworkBundle wiring: the normalizer must win over JsonSerializableNormalizer and the resolver over
@@ -66,6 +73,41 @@ final class SerializerAndResolverKernelTest extends TestCase
         $this->expectException(NotFoundHttpException::class);
 
         $resolver->getArguments(new Request(attributes: ['email' => 'nope']), static fn (EmailAddress $email): string => (string) $email);
+    }
+
+    public function testMapRequestPayloadTurnsAnInvalidValueObjectIntoA422WithThePropertyPath(): void
+    {
+        self::assertEquals(
+            [new SignUp(EmailAddress::from('a@example.com'), Port::from(8080))],
+            $this->mapRequestPayload('{"email":"a@example.com","port":8080}'),
+        );
+
+        try {
+            $this->mapRequestPayload('{"email":"not an email"}');
+            self::fail('Expected a 422.');
+        } catch (HttpException $exception) {
+            self::assertSame(422, $exception->getStatusCode());
+            $failure = $exception->getPrevious();
+            self::assertInstanceOf(ValidationFailedException::class, $failure);
+            self::assertSame('email', $failure->getViolations()->get(0)->getPropertyPath());
+        }
+    }
+
+    /**
+     * #[MapRequestPayload] arguments are placeholders until kernel.controller_arguments, so the listener runs here too.
+     *
+     * @return list<mixed>
+     */
+    private function mapRequestPayload(string $json): array
+    {
+        $request = Request::create('/sign-up', 'POST', server: ['CONTENT_TYPE' => 'application/json'], content: $json);
+        $controller = static fn (#[MapRequestPayload] SignUp $input): string => (string) $input->email;
+        $arguments = $this->service('argument_resolver', ArgumentResolverInterface::class)->getArguments($request, $controller);
+
+        $event = new ControllerArgumentsEvent($this->kernel, $controller, $arguments, $request, HttpKernelInterface::MAIN_REQUEST);
+        $this->service('argument_resolver.request_payload', RequestPayloadValueResolver::class)->onKernelControllerArguments($event);
+
+        return array_values($event->getArguments());
     }
 
     /**

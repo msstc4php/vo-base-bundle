@@ -7,6 +7,7 @@ namespace MSSTC4PHP\ValueObject\Bundle;
 use Doctrine\DBAL\Types\Type;
 use LogicException;
 use MSSTC4PHP\ValueObject\Doctrine\Orm\TypeRegistrar;
+use MSSTC4PHP\ValueObject\Payload\PayloadCodec;
 use Override;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -35,6 +36,12 @@ use Symfony\Component\Validator\Constraint;
  */
 class Msstc4phpVoBaseBundle extends AbstractBundle
 {
+    /**
+     * Autoconfigured on every PayloadCodec service: an application's own composite value objects reach the
+     * serializer and the resolver without further wiring.
+     */
+    public const string PAYLOAD_CODEC_TAG = 'msstc4php_vo_base.payload_codec';
+
     private const string ORM_REGISTRAR = TypeRegistrar::class;
 
     private const string ODM_REGISTRAR = \MSSTC4PHP\ValueObject\Doctrine\Odm\TypeRegistrar::class;
@@ -110,8 +117,13 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
     public function loadExtension(array $config, ContainerConfigurator $configurator, ContainerBuilder $container): void
     {
         $this->loadGroup($configurator, $this->requestedFlag($config, 'validator'), 'validator', $this->validatorAvailable(), 'symfony/validator');
-        $this->loadGroup($configurator, $this->requestedFlag($config, 'serializer'), 'serializer', $this->serializerAvailable(), 'symfony/serializer');
-        $this->loadGroup($configurator, $this->requestedFlag($config, 'value_resolver'), 'value_resolver', true, 'symfony/http-kernel');
+        $serializer = $this->loadGroup($configurator, $this->requestedFlag($config, 'serializer'), 'serializer', $this->serializerAvailable(), 'symfony/serializer');
+        $resolver = $this->loadGroup($configurator, $this->requestedFlag($config, 'value_resolver'), 'value_resolver', true, 'symfony/http-kernel');
+
+        if ($serializer || $resolver) {
+            $configurator->import(__DIR__ . '/Resources/config/payload.php');
+            $container->registerForAutoconfiguration(PayloadCodec::class)->addTag(self::PAYLOAD_CODEC_TAG);
+        }
     }
 
     protected function validatorAvailable(): bool
@@ -144,10 +156,10 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
      * Each group is independent: off when false, or when null and its package is missing; loud when demanded but
      * missing.
      */
-    private function loadGroup(ContainerConfigurator $configurator, ?bool $requested, string $group, bool $available, string $package): void
+    private function loadGroup(ContainerConfigurator $configurator, ?bool $requested, string $group, bool $available, string $package): bool
     {
         if ($requested === false || ($requested === null && !$available)) {
-            return;
+            return false;
         }
 
         if (!$available) {
@@ -155,6 +167,8 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
         }
 
         $configurator->import(__DIR__ . '/Resources/config/' . $group . '.php');
+
+        return true;
     }
 
     /**

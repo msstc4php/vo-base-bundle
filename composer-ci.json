@@ -51,6 +51,7 @@
         "roave/security-advisories": "dev-latest",
         "symfony/doctrine-bridge": "^7.4|^8.0",
         "symfony/framework-bundle": "^7.4|^8.0",
+        "symfony/property-access": "^7.4|^8.0",
         "symfony/serializer": "^7.4|^8.0",
         "symfony/validator": "^7.4|^8.0"
     },

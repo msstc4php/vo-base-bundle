@@ -74,11 +74,21 @@ final class ValueObjectNormalizerTest extends TestCase
         }
     }
 
-    public function testAPayloadOfTheWrongTypeIsADenormalizationErrorToo(): void
+    public function testAPayloadOfTheWrongTypeIsADenormalizationErrorWithoutInternalNames(): void
     {
-        $this->expectException(NotNormalizableValueException::class);
+        try {
+            $this->normalizer->denormalize(['min' => 1], IntRange::class);
+            self::fail('Expected an exception.');
+        } catch (NotNormalizableValueException $exception) {
+            self::assertFalse($exception->canUseMessageForUser());
+        }
+    }
 
-        $this->normalizer->denormalize(['min' => 1], IntRange::class);
+    public function testBoundedStringIsRefusedEvenOnADirectCall(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->normalizer->denormalize(['value' => 'x', 'minLength' => 0, 'maxLength' => null], BoundedString::class);
     }
 
     public function testBoundedStringIsLeftToJsonSerializeAndNeverReadFromInput(): void

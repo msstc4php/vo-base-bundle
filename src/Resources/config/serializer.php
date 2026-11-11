@@ -11,8 +11,6 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
-    $services->set(ValueObjectMapper::class)->private();
-
     $services
         ->set(ValueObjectNormalizer::class)
         ->private()->arg('$mapper', service(ValueObjectMapper::class))

@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Bundle\Framework\HttpKernel;
 
-use MSSTC4PHP\ValueObject\Contract\StringConvertible;
 use MSSTC4PHP\ValueObject\Exception\InvalidValueObjectException;
 use MSSTC4PHP\ValueObject\Payload\ValueObjectMapper;
-use MSSTC4PHP\ValueObject\Support\AbstractFloatValueObject;
-use MSSTC4PHP\ValueObject\Support\AbstractIntValueObject;
 use Override;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
@@ -41,7 +38,7 @@ final readonly class ValueObjectValueResolver implements ValueResolverInterface
         $class = $argument->getType();
         $name = $argument->getName();
 
-        if ($class === null || $argument->isVariadic() || !$this->isScalarBacked($class) || !$request->attributes->has($name)) {
+        if ($class === null || $argument->isVariadic() || !$this->mapper->isScalarBacked($class) || !$request->attributes->has($name)) {
             return [];
         }
 
@@ -51,19 +48,9 @@ final readonly class ValueObjectValueResolver implements ValueResolverInterface
         }
 
         try {
-            return [$this->mapper->fromPayload($class, $raw)];
+            return [$this->mapper->fromUntrustedPayload($class, $raw)];
         } catch (InvalidValueObjectException $exception) {
             throw new NotFoundHttpException(\sprintf('Could not resolve the "%s $%s" controller argument: %s', $class, $name, $exception->getMessage()), $exception);
         }
-    }
-
-    /**
-     * @phpstan-assert-if-true class-string $class
-     */
-    private function isScalarBacked(string $class): bool
-    {
-        return is_subclass_of($class, StringConvertible::class)
-            || is_subclass_of($class, AbstractIntValueObject::class)
-            || is_subclass_of($class, AbstractFloatValueObject::class);
     }
 }

@@ -10,6 +10,8 @@
 - `Framework\HttpKernel\ValueObjectValueResolver`: controller arguments typed with a string-, int- or float-backed
   value object resolve from route attributes; an invalid value is a 404 (`value_resolver` config node, on by
   default).
+- Any `PayloadCodec` service is autoconfigured (`msstc4php_vo_base.payload_codec`) and reaches the normalizer and the
+  resolver, so application composites work without wiring.
 - Requires `msstc4php/vo-base` `^1.1` (the shared `Payload\ValueObjectMapper`); the Doctrine types need
   `msstc4php/vo-base-doctrine` `^1.1`.
 

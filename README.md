@@ -84,8 +84,9 @@ public function signUp(#[MapRequestPayload] SignUp $input): Response
 
 `{"email": "not an email"}` becomes a 422 with the property path and the value object's message. Values go out in
 their storage form: strings, numbers, and `{"min": 1, "max": 5}`-style objects for `IntRange`, `GeoCoordinates` and
-`DateRange` (with microseconds and offset, unlike `jsonSerialize()`). `BoundedString` is never read from input: its
-payload carries the length limits, so the client would choose them; validate length with `Length` instead.
+`DateRange` (with microseconds and offset, unlike `jsonSerialize()`; input must carry an offset). `BoundedString` is
+never read from input: its payload carries the length limits, so the client would choose them; validate length with
+`Length` instead. Your own composite value objects work once their `PayloadCodec` is a service: it is autoconfigured.
 
 ## Route arguments
 

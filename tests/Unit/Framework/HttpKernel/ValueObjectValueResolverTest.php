@@ -9,6 +9,7 @@ use MSSTC4PHP\ValueObject\I18n\CountryCode;
 use MSSTC4PHP\ValueObject\Identity\EmailAddress;
 use MSSTC4PHP\ValueObject\Network\Port;
 use MSSTC4PHP\ValueObject\Payload\ValueObjectMapper;
+use MSSTC4PHP\ValueObject\Primitive\BoundedString;
 use MSSTC4PHP\ValueObject\Primitive\IntRange;
 use MSSTC4PHP\ValueObject\Primitive\Percentage;
 use Override;
@@ -57,6 +58,7 @@ final class ValueObjectValueResolverTest extends TestCase
         self::assertSame([], $this->resolve([], 'email', EmailAddress::class), 'no such route attribute');
         self::assertSame([], $this->resolve(['code' => 'DE'], 'code', CountryCode::class), 'enums belong to BackedEnumValueResolver');
         self::assertSame([], $this->resolve(['range' => '1-2'], 'range', IntRange::class), 'composites cannot come from a route');
+        self::assertSame([], $this->resolve(['label' => 'x'], 'label', BoundedString::class), 'trusted-source only');
         self::assertSame([], $this->resolve(['id' => '1'], 'id', 'int'), 'builtin type');
         self::assertSame([], $this->resolve(['id' => '1'], 'id', null), 'untyped');
         self::assertSame([], $this->resolve(['email' => 'a@example.com'], 'email', EmailAddress::class, true), 'variadic');

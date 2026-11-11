@@ -25,7 +25,10 @@ Each group is independent:
 `loadExtension()` imports one `Resources/config/<group>.php` per enabled group: `ValidValueObjectValidator`
 (`validator.constraint_validator`), `ValueObjectNormalizer` (`serializer.normalizer`, default priority, which is
 ahead of `JsonSerializableNormalizer`), `ValueObjectValueResolver` (`controller.argument_value_resolver`, priority
-105). Both of the latter share the core's `Payload\ValueObjectMapper` as a private service.
+105). Both of the latter share one private `Payload\ValueObjectMapper` service (`payload.php`, imported when either
+group is on), which receives every service tagged `msstc4php_vo_base.payload_codec`
+(`Msstc4phpVoBaseBundle::PAYLOAD_CODEC_TAG`); any `PayloadCodec` service is autoconfigured with it, so an
+application's own composite value objects work in the Serializer without wiring.
 
 The bundle never calls `TypeRegistrar::registerAll()`. Static registration
 remains the route for bare Doctrine; mixing both in one process is unnecessary
@@ -44,8 +47,12 @@ constraint options.
   which the Serializer matches by subclass. Errors become `NotNormalizableValueException` with
   `useMessageForUser: true`, so `#[MapRequestPayload]` answers 422 with the value object's message and the
   `deserialization_path`.
-- `BoundedString` is excluded in both directions: its payload carries `minLength`/`maxLength`, so reading it from a
-  request is a validation bypass and writing it publishes internal limits. It falls through to
-  `JsonSerializableNormalizer` (bare string) on output and to no denormalizer on input.
+- Input goes through the mapper's `fromUntrustedPayload()`; `supportsUntrusted()` decides support. A codec marked
+  `TrustedSourceOnly` (core: `BoundedStringCodec`) is therefore excluded in both directions: its payload carries
+  `minLength`/`maxLength`, so reading it from a request is a validation bypass and writing it publishes internal
+  limits. `BoundedString` falls through to `JsonSerializableNormalizer` (bare string) on output and to no
+  denormalizer on input; a direct `denormalize()` call throws.
+- A wrong type or shape (`InvalidPayloadException`) is reported with `useMessageForUser: false`: its message names
+  internal classes. Invalid content keeps the value object's message for the client.
 - `ValueObjectValueResolver` reads route attributes only, like `BackedEnumValueResolver`, and leaves enums,
   composites, variadics and untyped arguments to others. Invalid → `NotFoundHttpException`.

@@ -91,7 +91,9 @@ That file executes under coverage and cannot be listed in `#[CoversClass]`, so i
 
 `$configurator->import(...)` in `loadGroup()` is exercised only by `tests/Integration`, whose classes are
 `#[CoversNothing]`: the imported file cannot be listed in coverage metadata, and the shared `phpunit.xml.dist` cannot
-change. Infection counts removing that line as uncovered. Accepted; `ServiceRegistrationTest` still catches it.
+change. Infection counts removing that line as uncovered. Accepted; `ServiceRegistrationTest` still catches it. The
+same holds for the `payload.php` import and its `$serializer || $resolver` condition (about seven escaped mutants,
+bundle MSI ~91%).
 
 The same rule bites unit tests: a `#[CoversClass(Msstc4phpVoBaseBundle::class)]` test that calls `loadExtension()`
 with a group left on executes `Resources/config/<group>.php` and is reported risky, which makes Infection refuse to
