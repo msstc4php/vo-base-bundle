@@ -6,10 +6,13 @@ namespace MSSTC4PHP\ValueObject\Bundle\Test\Unit;
 
 use Doctrine\DBAL\Types\Type;
 use LogicException;
+use MSSTC4PHP\ValueObject\Bundle\Framework\HttpKernel\ValueObjectValueResolver;
+use MSSTC4PHP\ValueObject\Bundle\Framework\Serializer\ValueObjectNormalizer;
 use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\ValidValueObjectValidator;
 use MSSTC4PHP\ValueObject\Bundle\Msstc4phpVoBaseBundle;
 use MSSTC4PHP\ValueObject\Bundle\Test\Support\TestConfigurator;
 use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleWithoutDoctrinePackage;
+use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleWithoutSerializer;
 use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleWithoutValidator;
 use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\StubExtension;
 use MSSTC4PHP\ValueObject\Doctrine\Odm\TypeRegistrar as OdmRegistrar;
@@ -159,7 +162,7 @@ final class Msstc4phpVoBaseBundleTest extends TestCase
     {
         $container = new ContainerBuilder();
 
-        new Msstc4phpVoBaseBundle()->loadExtension(['validator' => false], $this->configurator($container), $container);
+        new Msstc4phpVoBaseBundle()->loadExtension(['validator' => false, 'serializer' => false, 'value_resolver' => false], $this->configurator($container), $container);
 
         self::assertFalse($container->hasDefinition(ValidValueObjectValidator::class));
     }
@@ -215,7 +218,7 @@ final class Msstc4phpVoBaseBundleTest extends TestCase
     {
         $container = new ContainerBuilder();
 
-        new BundleWithoutValidator()->loadExtension([], $this->configurator($container), $container);
+        new BundleWithoutValidator()->loadExtension(['serializer' => false, 'value_resolver' => false], $this->configurator($container), $container);
 
         self::assertFalse($container->hasDefinition(ValidValueObjectValidator::class));
     }
@@ -228,6 +231,35 @@ final class Msstc4phpVoBaseBundleTest extends TestCase
         $this->expectExceptionMessage('symfony/validator is not installed');
 
         new BundleWithoutValidator()->loadExtension(['validator' => true], $this->configurator($container), $container);
+    }
+
+    public function testSerializerAndValueResolverCanBeSwitchedOff(): void
+    {
+        $container = new ContainerBuilder();
+
+        new Msstc4phpVoBaseBundle()->loadExtension(['validator' => false, 'serializer' => false, 'value_resolver' => false], $this->configurator($container), $container);
+
+        self::assertFalse($container->hasDefinition(ValueObjectNormalizer::class));
+        self::assertFalse($container->hasDefinition(ValueObjectValueResolver::class));
+    }
+
+    public function testSerializerStaysQuietWhenItsPackageIsMissing(): void
+    {
+        $container = new ContainerBuilder();
+
+        new BundleWithoutSerializer()->loadExtension(['validator' => false, 'value_resolver' => false], $this->configurator($container), $container);
+
+        self::assertFalse($container->hasDefinition(ValueObjectNormalizer::class));
+    }
+
+    public function testDemandingAMissingSerializerFails(): void
+    {
+        $container = new ContainerBuilder();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('msstc4php_vo_base.serializer is enabled but symfony/serializer is not installed.');
+
+        new BundleWithoutSerializer()->loadExtension(['validator' => false, 'serializer' => true], $this->configurator($container), $container);
     }
 
     /**

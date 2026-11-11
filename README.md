@@ -36,8 +36,8 @@ return [
 ];
 ```
 
-That is the whole setup. Each of the three groups registers when its dependency
-is installed and its extension is present, and stays quiet otherwise.
+That is the whole setup. Each group registers when its dependency is installed
+(and, for Doctrine, its extension is present), and stays quiet otherwise.
 
 ## Configuration
 
@@ -47,6 +47,8 @@ msstc4php_vo_base:
     orm: ~        # null auto-detects, false suppresses, true demands
     odm: ~
     validator: ~
+    serializer: ~      # value objects in the Serializer, e.g. behind #[MapRequestPayload]
+    value_resolver: ~  # controller arguments from route attributes; on unless false
 ```
 
 `true` makes a missing dependency an error at container build time instead of
@@ -65,6 +67,35 @@ The constraint runs the value object's own constructor and turns its exception
 into a violation, so the rule lives in one place rather than being restated as
 constraint options. `ValidValueObject` does the same for any value object by
 class name.
+
+## Serializer
+
+With `symfony/serializer` installed, a DTO property can be typed with a value object:
+
+```php
+final readonly class SignUp
+{
+    public function __construct(public EmailAddress $email, public ?Port $port = null) {}
+}
+
+#[Route('/sign-up', methods: ['POST'])]
+public function signUp(#[MapRequestPayload] SignUp $input): Response
+```
+
+`{"email": "not an email"}` becomes a 422 with the property path and the value object's message. Values go out in
+their storage form: strings, numbers, and `{"min": 1, "max": 5}`-style objects for `IntRange`, `GeoCoordinates` and
+`DateRange` (with microseconds and offset, unlike `jsonSerialize()`). `BoundedString` is never read from input: its
+payload carries the length limits, so the client would choose them; validate length with `Length` instead.
+
+## Route arguments
+
+```php
+#[Route('/users/{email}')]
+public function show(EmailAddress $email): Response
+```
+
+An invalid `{email}` is a 404, as with Symfony's enum resolver. Only string-, int- and float-backed value objects;
+the ISO enums are handled by Symfony itself.
 
 ## Development
 

@@ -32,6 +32,8 @@ removed, and the Validator suite passes in full.
 ```
 src/
 ├── Framework/Validator/  ValidValueObject, ValidValueObjectValidator, 13 Assert*
-├── Resources/config/     validator.php
+├── Framework/Serializer/ ValueObjectNormalizer
+├── Framework/HttpKernel/ ValueObjectValueResolver
+├── Resources/config/     validator.php, serializer.php, value_resolver.php
 └── Msstc4phpVoBaseBundle.php
 ```

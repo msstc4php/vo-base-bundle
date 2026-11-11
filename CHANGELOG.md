@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.1.0 - 2026-11-11
+
+**Added**
+
+- `Framework\Serializer\ValueObjectNormalizer`: value objects in the Symfony Serializer, so DTOs behind
+  `#[MapRequestPayload]` can use them; invalid input is a 422 with the property path. Registered when
+  `symfony/serializer` is installed (`serializer` config node). `BoundedString` is excluded in both directions.
+- `Framework\HttpKernel\ValueObjectValueResolver`: controller arguments typed with a string-, int- or float-backed
+  value object resolve from route attributes; an invalid value is a 404 (`value_resolver` config node, on by
+  default).
+- Requires `msstc4php/vo-base` `^1.1` (the shared `Payload\ValueObjectMapper`); the Doctrine types need
+  `msstc4php/vo-base-doctrine` `^1.1`.
+
 ## 1.0.0 - 2026-11-11
 
 First stable release: from here on a breaking change needs 2.0. The bundle class, the `msstc4php_vo_base` config

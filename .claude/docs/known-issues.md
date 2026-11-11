@@ -87,11 +87,22 @@ That file executes under coverage and cannot be listed in `#[CoversClass]`, so i
   released core first, then `msstc4php/vo-base-doctrine`, then this package. Tags made before the 2026-11-09 UTC
   rename carry the old package names, so `msstc4php/vo-base-doctrine` resolves only from v0.5.0 on.
 
-## The validator import line has no mutation coverage
+## The group import line has no mutation coverage
 
-`$configurator->import(...)` in `loadExtension` is exercised only by `tests/Integration`, whose classes are
+`$configurator->import(...)` in `loadGroup()` is exercised only by `tests/Integration`, whose classes are
 `#[CoversNothing]`: the imported file cannot be listed in coverage metadata, and the shared `phpunit.xml.dist` cannot
-change. Infection counts removing that line as uncovered. Accepted; `ValidatorRegistrationTest` still catches it.
+change. Infection counts removing that line as uncovered. Accepted; `ServiceRegistrationTest` still catches it.
+
+The same rule bites unit tests: a `#[CoversClass(Msstc4phpVoBaseBundle::class)]` test that calls `loadExtension()`
+with a group left on executes `Resources/config/<group>.php` and is reported risky, which makes Infection refuse to
+start. Unit tests therefore switch off every group they do not assert on (`value_resolver` is on by default).
+
+## `ValueObjectValueResolver` must outrank `RequestAttributeValueResolver`
+
+Both look at route attributes; `RequestAttributeValueResolver` (priority 100) hands the raw string to any argument
+with a matching name, which is a `TypeError` for a value-object-typed argument. The resolver is tagged 105: above
+that, below DoctrineBundle's `EntityValueResolver` (110), which ignores non-entities anyway.
+`SerializerAndResolverKernelTest` proves the order in a real kernel.
 
 ## Integration kernels share a container cache across checkouts
 

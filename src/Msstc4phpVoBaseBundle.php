@@ -12,12 +12,14 @@ use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * Registers the value-object Doctrine types and the constraint validator.
+ * Registers the value-object Doctrine types, the constraint validator, the
+ * Serializer normalizer and the controller argument resolver.
  *
- * One line in bundles.php is the whole setup. Each of the three groups is
+ * One line in bundles.php is the whole setup. Each of the groups is
  * independent: a group registers when its dependency is installed and its
  * extension is present, and stays quiet otherwise.
  *
@@ -58,6 +60,12 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
                 ->end()
                 ->booleanNode('validator')->defaultNull()
                     ->info('Register the ValidValueObject constraint validator. Null auto-detects.')
+                ->end()
+                ->booleanNode('serializer')->defaultNull()
+                    ->info('Register the Serializer normalizer for value objects. Null auto-detects symfony/serializer.')
+                ->end()
+                ->booleanNode('value_resolver')->defaultNull()
+                    ->info('Resolve controller arguments typed with a value object from route attributes. Null means on.')
                 ->end()
             ->end()
         ;
@@ -101,23 +109,19 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
     #[Override]
     public function loadExtension(array $config, ContainerConfigurator $configurator, ContainerBuilder $container): void
     {
-        $requested = $this->requestedFlag($config, 'validator');
-        $available = $this->validatorAvailable();
-
-        if ($requested === false || ($requested === null && !$available)) {
-            return;
-        }
-
-        if ($requested === true && !$available) {
-            throw new LogicException('msstc4php_vo_base.validator is enabled but symfony/validator is not installed.');
-        }
-
-        $configurator->import(__DIR__ . '/Resources/config/validator.php');
+        $this->loadGroup($configurator, $this->requestedFlag($config, 'validator'), 'validator', $this->validatorAvailable(), 'symfony/validator');
+        $this->loadGroup($configurator, $this->requestedFlag($config, 'serializer'), 'serializer', $this->serializerAvailable(), 'symfony/serializer');
+        $this->loadGroup($configurator, $this->requestedFlag($config, 'value_resolver'), 'value_resolver', true, 'symfony/http-kernel');
     }
 
     protected function validatorAvailable(): bool
     {
         return \class_exists(Constraint::class);
+    }
+
+    protected function serializerAvailable(): bool
+    {
+        return \interface_exists(DenormalizerInterface::class);
     }
 
     /**
@@ -134,6 +138,23 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
     protected function odmTypes(): ?array
     {
         return $this->typesFrom(self::ODM_REGISTRAR, self::ODM_BASE);
+    }
+
+    /**
+     * Each group is independent: off when false, or when null and its package is missing; loud when demanded but
+     * missing.
+     */
+    private function loadGroup(ContainerConfigurator $configurator, ?bool $requested, string $group, bool $available, string $package): void
+    {
+        if ($requested === false || ($requested === null && !$available)) {
+            return;
+        }
+
+        if (!$available) {
+            throw new LogicException(\sprintf('msstc4php_vo_base.%s is enabled but %s is not installed.', $group, $package));
+        }
+
+        $configurator->import(__DIR__ . '/Resources/config/' . $group . '.php');
     }
 
     /**
