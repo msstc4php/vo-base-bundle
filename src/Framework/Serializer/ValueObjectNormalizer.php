@@ -36,8 +36,6 @@ final readonly class ValueObjectNormalizer implements NormalizerInterface, Denor
     }
 
     /**
-     * @param array<string, mixed> $context
-     *
      * @return string|int|float|array<string, scalar|null>
      */
     #[Override]
@@ -50,9 +48,6 @@ final readonly class ValueObjectNormalizer implements NormalizerInterface, Denor
         return $this->mapper->toPayload($data);
     }
 
-    /**
-     * @param array<string, mixed> $context
-     */
     #[Override]
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
@@ -60,9 +55,6 @@ final readonly class ValueObjectNormalizer implements NormalizerInterface, Denor
         return $data instanceof ValueObject && $this->mapper->supportsUntrusted($data::class);
     }
 
-    /**
-     * @param array<string, mixed> $context
-     */
     #[Override]
     public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): mixed
     {
@@ -88,9 +80,6 @@ final readonly class ValueObjectNormalizer implements NormalizerInterface, Denor
         }
     }
 
-    /**
-     * @param array<string, mixed> $context
-     */
     #[Override]
     public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
