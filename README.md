@@ -82,11 +82,14 @@ final readonly class SignUp
 public function signUp(#[MapRequestPayload] SignUp $input): Response
 ```
 
-`{"email": "not an email"}` becomes a 422 with the property path and the value object's message. Values go out in
+`{"email": "not an email"}` becomes a 422 for the property path `email` with Symfony's generic text ("This value
+should be of type string.") and the value object's message in the violation's `hint` parameter; no internal class
+name reaches the client. Values go out in
 their storage form: strings, numbers, and `{"min": 1, "max": 5}`-style objects for `IntRange`, `GeoCoordinates` and
 `DateRange` (with microseconds and offset, unlike `jsonSerialize()`; input must carry an offset). `BoundedString` is
-never read from input: its payload carries the length limits, so the client would choose them; validate length with
-`Length` instead. Your own composite value objects work once their `PayloadCodec` is a service: it is autoconfigured.
+never built from input (a `BoundedString` property is a 422): its payload carries the length limits, so the client
+would choose them; type the property as `string` and validate it with `Length` instead. Numbers are also accepted as
+numeric strings (`"8080"`), as they arrive from forms, XML and CSV. Your own composite value objects work once their `PayloadCodec` is a service: it is autoconfigured.
 
 ## Route arguments
 

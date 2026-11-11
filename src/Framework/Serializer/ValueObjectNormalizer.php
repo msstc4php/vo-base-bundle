@@ -16,12 +16,17 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
  * Value objects to and from their storage form, so a DTO behind #[MapRequestPayload] can type a property as
- * EmailAddress. Invalid input becomes a NotNormalizableValueException carrying the value object's message, which
- * the serializer turns into a 422 with the property path. The ISO enums are left to Symfony's own enum normalizer.
+ * EmailAddress. Invalid input becomes a NotNormalizableValueException, which #[MapRequestPayload] turns into a 422
+ * with the property path. The ISO enums are left to Symfony's own enum normalizer.
  *
- * Classes the mapper marks trusted-source only (BoundedString) are left out in both directions: their payload carries
- * their own limits, so accepting it from a request would let the client choose them, and emitting it would publish
- * them. BoundedString keeps the JsonSerializable output (the bare string).
+ * The expected type it reports is the JSON type (string, int, float, array), never the class: Symfony builds the
+ * violation text from it ("This value should be of type string."), so a class name would reach API clients. The
+ * value object's own message travels as the violation's "hint" parameter.
+ *
+ * Classes the mapper marks trusted-source only (BoundedString) are claimed on input and always refused: declining
+ * them would hand them to ObjectNormalizer, which would build one through its constructor with limits the client
+ * chose. On output they are declined, keeping the JsonSerializable form (the bare string) rather than publishing
+ * the limits.
  */
 final readonly class ValueObjectNormalizer implements NormalizerInterface, DenormalizerInterface
 {
@@ -51,7 +56,7 @@ final readonly class ValueObjectNormalizer implements NormalizerInterface, Denor
     #[Override]
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
-        return $data instanceof ValueObject && $this->handles($data::class);
+        return $data instanceof ValueObject && $this->mapper->supportsUntrusted($data::class);
     }
 
     /**
@@ -60,8 +65,8 @@ final readonly class ValueObjectNormalizer implements NormalizerInterface, Denor
     #[Override]
     public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): mixed
     {
-        if (!is_subclass_of($type, ValueObject::class) || !$this->mapper->supportsUntrusted($type)) {
-            throw new InvalidArgumentException(\sprintf('"%s" is not a value object this normalizer reads from input.', $type));
+        if (!is_subclass_of($type, ValueObject::class) || !$this->mapper->supports($type)) {
+            throw new InvalidArgumentException(\sprintf('"%s" is not a value object this normalizer reads.', $type));
         }
 
         try {
@@ -69,8 +74,7 @@ final readonly class ValueObjectNormalizer implements NormalizerInterface, Denor
         } catch (InvalidValueObjectException $exception) {
             $path = $context['deserialization_path'] ?? null;
 
-            // A wrong type or shape names internal classes; Symfony's generic "should be of type" text is enough there.
-            throw NotNormalizableValueException::createForUnexpectedDataType($exception->getMessage(), $data, [$type], \is_string($path) ? $path : null, !$exception instanceof InvalidPayloadException, 0, $exception);
+            throw NotNormalizableValueException::createForUnexpectedDataType($exception->getMessage(), $data, [$this->mapper->payloadType($type)], \is_string($path) ? $path : null, /* A wrong type or shape names internal classes in its message; invalid content does not. */ !$exception instanceof InvalidPayloadException, 0, $exception);
         }
     }
 
@@ -80,7 +84,7 @@ final readonly class ValueObjectNormalizer implements NormalizerInterface, Denor
     #[Override]
     public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
-        return $this->handles($type);
+        return is_subclass_of($type, ValueObject::class) && $this->mapper->supports($type);
     }
 
     /**
@@ -92,13 +96,5 @@ final readonly class ValueObjectNormalizer implements NormalizerInterface, Denor
     public function getSupportedTypes(?string $format): array
     {
         return [ValueObject::class => true];
-    }
-
-    /**
-     * Value objects only (the ISO enums are Symfony's), and none whose payload carries its own constraints.
-     */
-    private function handles(string $class): bool
-    {
-        return is_subclass_of($class, ValueObject::class) && $this->mapper->supportsUntrusted($class);
     }
 }

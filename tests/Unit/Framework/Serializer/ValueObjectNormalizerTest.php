@@ -69,7 +69,7 @@ final class ValueObjectNormalizerTest extends TestCase
         } catch (NotNormalizableValueException $exception) {
             self::assertSame('contact.email', $exception->getPath());
             self::assertTrue($exception->canUseMessageForUser());
-            self::assertSame([EmailAddress::class], $exception->getExpectedTypes());
+            self::assertSame(['string'], $exception->getExpectedTypes());
             self::assertSame('string', $exception->getCurrentType());
         }
     }
@@ -84,19 +84,27 @@ final class ValueObjectNormalizerTest extends TestCase
         }
     }
 
-    public function testBoundedStringIsRefusedEvenOnADirectCall(): void
+    public function testBoundedStringIsClaimedOnInputAndAlwaysRefused(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $payload = ['value' => 'x', 'minLength' => 0, 'maxLength' => null];
 
-        $this->normalizer->denormalize(['value' => 'x', 'minLength' => 0, 'maxLength' => null], BoundedString::class);
+        self::assertTrue($this->normalizer->supportsDenormalization($payload, BoundedString::class), 'declining would hand it to ObjectNormalizer');
+
+        try {
+            $this->normalizer->denormalize($payload, BoundedString::class, 'json', ['deserialization_path' => 'name']);
+            self::fail('Expected an exception.');
+        } catch (NotNormalizableValueException $exception) {
+            self::assertSame(['array'], $exception->getExpectedTypes());
+            self::assertSame('name', $exception->getPath());
+            self::assertFalse($exception->canUseMessageForUser());
+        }
     }
 
-    public function testBoundedStringIsLeftToJsonSerializeAndNeverReadFromInput(): void
+    public function testBoundedStringKeepsItsJsonSerializeOutput(): void
     {
         $value = new BoundedString('ab', 1, 3);
 
         self::assertFalse($this->normalizer->supportsNormalization($value));
-        self::assertFalse($this->normalizer->supportsDenormalization(['value' => 'ab', 'minLength' => 0, 'maxLength' => null], BoundedString::class));
         self::assertSame('"ab"', $this->serializer->serialize($value, 'json'));
     }
 

@@ -30,9 +30,9 @@ use Symfony\Component\Validator\Constraint;
  * package instead would hand every Doctrine type to a Symfony consumer with no Doctrine
  * at all, and tie the two release cycles together.
  *
- * Not final: a bundle is a framework extension point, and overriding the two
- * registrar lookups is how the "package not installed" path gets exercised
- * without uninstalling it.
+ * Not final: a bundle is a framework extension point, and overriding the
+ * availability lookups is how the "package not installed" paths get exercised
+ * without uninstalling anything.
  */
 class Msstc4phpVoBaseBundle extends AbstractBundle
 {

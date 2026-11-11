@@ -47,12 +47,17 @@ constraint options.
   which the Serializer matches by subclass. Errors become `NotNormalizableValueException` with
   `useMessageForUser: true`, so `#[MapRequestPayload]` answers 422 with the value object's message and the
   `deserialization_path`.
-- Input goes through the mapper's `fromUntrustedPayload()`; `supportsUntrusted()` decides support. A codec marked
-  `TrustedSourceOnly` (core: `BoundedStringCodec`) is therefore excluded in both directions: its payload carries
-  `minLength`/`maxLength`, so reading it from a request is a validation bypass and writing it publishes internal
-  limits. `BoundedString` falls through to `JsonSerializableNormalizer` (bare string) on output and to no
-  denormalizer on input; a direct `denormalize()` call throws.
-- A wrong type or shape (`InvalidPayloadException`) is reported with `useMessageForUser: false`: its message names
-  internal classes. Invalid content keeps the value object's message for the client.
+- Input goes through the mapper's `fromUntrustedPayload()`. `supportsDenormalization()` claims every supported value
+  object **including** trusted-source-only ones (`BoundedString`) and `denormalize()` refuses those: declining them
+  is not safe, because `ObjectNormalizer` (priority -1000) would then build a `BoundedString` through its public
+  constructor from the client's `{value, minLength, maxLength}`. Output declines them, so `BoundedString` keeps the
+  `JsonSerializableNormalizer` form (bare string) and publishes no limits.
+- Expected types in `NotNormalizableValueException` are the mapper's `payloadType()` (string/int/float/array), never
+  the class: `RequestPayloadValueResolver` always renders "This value should be of type {{ type }}." from them and
+  puts the exception message into a `hint` parameter (only when `useMessageForUser`). `useMessageForUser` is false
+  for `InvalidPayloadException` (its message names classes), true for invalid content.
+- `ValueObjectValueResolver`'s 404 message contains the class and the value object's message, as Symfony's
+  `BackedEnumValueResolver` does. Production renders only the status text; apps that render exception messages show
+  it.
 - `ValueObjectValueResolver` reads route attributes only, like `BackedEnumValueResolver`, and leaves enums,
   composites, variadics and untyped arguments to others. Invalid → `NotFoundHttpException`.

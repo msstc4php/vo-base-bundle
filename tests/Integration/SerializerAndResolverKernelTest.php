@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Bundle\Test\Integration;
 
+use MSSTC4PHP\ValueObject\Bundle\Test\Integration\Fixture\Label;
 use MSSTC4PHP\ValueObject\Bundle\Test\Integration\Fixture\SignUp;
 use MSSTC4PHP\ValueObject\Bundle\Test\Integration\Kernel\IntegrationKernel;
 use MSSTC4PHP\ValueObject\Identity\EmailAddress;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
@@ -79,29 +81,63 @@ final class SerializerAndResolverKernelTest extends TestCase
     {
         self::assertEquals(
             [new SignUp(EmailAddress::from('a@example.com'), Port::from(8080))],
-            $this->mapRequestPayload('{"email":"a@example.com","port":8080}'),
+            $this->mapRequestPayload(SignUp::class, '{"email":"a@example.com","port":8080}'),
         );
 
+        $violation = $this->rejectedViolation(SignUp::class, '{"email":"not an email"}');
+
+        self::assertSame('email', $violation->getPropertyPath());
+        self::assertSame('This value should be of type string.', $violation->getMessage());
+        self::assertSame('Value "not an email" is not a valid e-mail address.', $violation->getParameters()['hint'] ?? null);
+    }
+
+    public function testAWrongTypeNamesNoInternalClass(): void
+    {
+        $violation = $this->rejectedViolation(SignUp::class, '{"email":["x"]}');
+
+        self::assertStringNotContainsString('MSSTC4PHP', $violation->getMessage() . json_encode($violation->getParameters(), \JSON_THROW_ON_ERROR));
+    }
+
+    public function testABoundedStringIsNeverBuiltFromTheRequest(): void
+    {
+        $violation = $this->rejectedViolation(Label::class, '{"name":{"value":"anything","minLength":0,"maxLength":null}}');
+
+        self::assertSame('name', $violation->getPropertyPath());
+        self::assertStringNotContainsString('MSSTC4PHP', $violation->getMessage() . json_encode($violation->getParameters(), \JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * @param class-string $dto
+     */
+    private function rejectedViolation(string $dto, string $json): ConstraintViolationInterface
+    {
         try {
-            $this->mapRequestPayload('{"email":"not an email"}');
-            self::fail('Expected a 422.');
+            $this->mapRequestPayload($dto, $json);
         } catch (HttpException $exception) {
             self::assertSame(422, $exception->getStatusCode());
             $failure = $exception->getPrevious();
             self::assertInstanceOf(ValidationFailedException::class, $failure);
-            self::assertSame('email', $failure->getViolations()->get(0)->getPropertyPath());
+            self::assertCount(1, $failure->getViolations());
+
+            return $failure->getViolations()->get(0);
         }
+
+        self::fail('Expected a 422.');
     }
 
     /**
      * #[MapRequestPayload] arguments are placeholders until kernel.controller_arguments, so the listener runs here too.
      *
+     * @param class-string $dto
+     *
      * @return list<mixed>
      */
-    private function mapRequestPayload(string $json): array
+    private function mapRequestPayload(string $dto, string $json): array
     {
-        $request = Request::create('/sign-up', 'POST', server: ['CONTENT_TYPE' => 'application/json'], content: $json);
-        $controller = static fn (#[MapRequestPayload] SignUp $input): string => (string) $input->email;
+        $request = Request::create('/payload', 'POST', server: ['CONTENT_TYPE' => 'application/json'], content: $json);
+        $controller = $dto === SignUp::class
+            ? static fn (#[MapRequestPayload] SignUp $input): string => (string) $input->email
+            : static fn (#[MapRequestPayload] Label $input): string => (string) $input->name;
         $arguments = $this->service('argument_resolver', ArgumentResolverInterface::class)->getArguments($request, $controller);
 
         $event = new ControllerArgumentsEvent($this->kernel, $controller, $arguments, $request, HttpKernelInterface::MAIN_REQUEST);
