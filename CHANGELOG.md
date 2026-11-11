@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.0 - 2026-11-11
+
+First stable release: from here on a breaking change needs 2.0. The bundle class, the `msstc4php_vo_base` config
+alias and its options are part of that promise.
+
+- Requires `msstc4php/vo-base` `^1.0`; the Doctrine types come from `msstc4php/vo-base-doctrine` `^1.0`. No code
+  changes.
+
 ## 0.4.0 - 2026-11-09
 
 **Changed (BC):** the package is renamed to the convention of third-party libraries with framework add-ons.

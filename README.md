@@ -18,14 +18,14 @@ Neither package is on Packagist yet:
         { "type": "vcs", "url": "https://github.com/msstc4php/vo-base-bundle" }
     ],
     "require": {
-        "msstc4php/vo-base-bundle": "^0.4"
+        "msstc4php/vo-base-bundle": "^1.0"
     }
 }
 ```
 
 Doctrine is **not** required. If you want the field types, also add
 `{ "type": "vcs", "url": "https://github.com/msstc4php/vo-base-doctrine" }` to `repositories` and
-require `msstc4php/vo-base-doctrine:^0.5`; the bundle picks it up on its own.
+require `msstc4php/vo-base-doctrine:^1.0`; the bundle picks it up on its own.
 
 ## Enable the bundle
 
