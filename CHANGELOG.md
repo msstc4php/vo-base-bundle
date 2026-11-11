@@ -2,6 +2,10 @@
 
 ## 1.1.0 - 2026-11-11
 
+**Changed:** the `{{ type }}` parameter of `ValidValueObject` (and every `Assert*`) is a lowercase label such as
+"email address" instead of the class name, so violations sent to API clients name no internal class. Custom
+messages using `{{ type }}` read differently.
+
 **Added**
 
 - `Framework\Serializer\ValueObjectNormalizer`: value objects in the Symfony Serializer, so DTOs behind

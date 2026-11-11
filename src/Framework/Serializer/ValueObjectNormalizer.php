@@ -56,6 +56,7 @@ final readonly class ValueObjectNormalizer implements NormalizerInterface, Denor
     #[Override]
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
+        // The classes that may not be read from a request are the ones whose payload would publish their limits.
         return $data instanceof ValueObject && $this->mapper->supportsUntrusted($data::class);
     }
 
@@ -69,12 +70,21 @@ final readonly class ValueObjectNormalizer implements NormalizerInterface, Denor
             throw new InvalidArgumentException(\sprintf('"%s" is not a value object this normalizer reads.', $type));
         }
 
+        $path = $context['deserialization_path'] ?? null;
+        $path = \is_string($path) ? $path : null;
+
+        // Claimed only to be refused: what the client may send for such a field is a plain string, validated by
+        // the application (README: type the property as string and add Length).
+        if (!$this->mapper->supportsUntrusted($type)) {
+            throw NotNormalizableValueException::createForUnexpectedDataType(\sprintf('%s cannot be read from a request.', $type), $data, ['string'], $path);
+        }
+
         try {
             return $this->mapper->fromUntrustedPayload($type, $data);
         } catch (InvalidValueObjectException $exception) {
-            $path = $context['deserialization_path'] ?? null;
+            $messageNamesNoClass = !$exception instanceof InvalidPayloadException;
 
-            throw NotNormalizableValueException::createForUnexpectedDataType($exception->getMessage(), $data, [$this->mapper->payloadType($type)], \is_string($path) ? $path : null, /* A wrong type or shape names internal classes in its message; invalid content does not. */ !$exception instanceof InvalidPayloadException, 0, $exception);
+            throw NotNormalizableValueException::createForUnexpectedDataType($exception->getMessage(), $data, [$this->mapper->payloadType($type)], $path, $messageNamesNoClass, 0, $exception);
         }
     }
 

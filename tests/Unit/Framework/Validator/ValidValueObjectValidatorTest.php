@@ -40,6 +40,8 @@ final class ValidValueObjectValidatorTest extends TestCase
         self::assertCount(1, $violations);
         self::assertArrayHasKey('{{ value }}', $violations->get(0)->getParameters());
         self::assertSame('not-an-email', $violations->get(0)->getParameters()['{{ value }}']);
+        self::assertSame('email address', $violations->get(0)->getParameters()['{{ type }}']);
+        self::assertSame('The value not-an-email is not a valid email address.', $violations->get(0)->getMessage());
     }
 
     public function testNullYieldsNoViolations(): void

@@ -94,7 +94,7 @@ final class ValueObjectNormalizerTest extends TestCase
             $this->normalizer->denormalize($payload, BoundedString::class, 'json', ['deserialization_path' => 'name']);
             self::fail('Expected an exception.');
         } catch (NotNormalizableValueException $exception) {
-            self::assertSame(['array'], $exception->getExpectedTypes());
+            self::assertSame(['string'], $exception->getExpectedTypes());
             self::assertSame('name', $exception->getPath());
             self::assertFalse($exception->canUseMessageForUser());
         }

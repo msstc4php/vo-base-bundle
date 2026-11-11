@@ -38,9 +38,19 @@ final class ValidValueObjectValidator extends ConstraintValidator
         } catch (InvalidValueObjectException) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ value }}', $value)
-                ->setParameter('{{ type }}', $constraint->class)
+                ->setParameter('{{ type }}', $this->label($constraint->class))
                 ->addViolation()
             ;
         }
+    }
+
+    /**
+     * "email address" for EmailAddress: violations reach API clients, which must not learn internal class names.
+     */
+    private function label(string $class): string
+    {
+        $short = substr($class, (int) strrpos('\\' . $class, '\\'));
+
+        return strtolower((string) preg_replace('/(?<=[a-z0-9])(?=[A-Z])/', ' ', $short));
     }
 }

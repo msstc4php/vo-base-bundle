@@ -61,3 +61,10 @@ constraint options.
   it.
 - `ValueObjectValueResolver` reads route attributes only, like `BackedEnumValueResolver`, and leaves enums,
   composites, variadics and untyped arguments to others. Invalid → `NotFoundHttpException`.
+
+## No class names in client-facing errors
+
+Every path that reaches an API client avoids internal class names: the normalizer reports JSON types,
+`ValidValueObject`'s `{{ type }}` is a label derived from the short class name ("email address"), the Laravel rule's
+`:type` uses the same rule. Only the route resolver's 404 message names the class, and Symfony shows that text in debug
+mode only.
