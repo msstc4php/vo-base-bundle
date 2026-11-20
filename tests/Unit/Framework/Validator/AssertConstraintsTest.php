@@ -91,4 +91,12 @@ final class AssertConstraintsTest extends TestCase
     {
         self::assertCount(1, $this->validator->validate($invalid, new $constraintClass()));
     }
+
+    public function testTheCreditCardMessageDoesNotQuoteTheNumber(): void
+    {
+        $violations = $this->validator->validate('4111111111111112', new AssertCreditCardNumber());
+
+        self::assertCount(1, $violations);
+        self::assertSame('The value is not a valid credit card number.', $violations[0]?->getMessage());
+    }
 }
