@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+**Deprecated:** `Framework\Validator\AssertCreditCardNumber`, following `Finance\CreditCardNumber` in
+`msstc4php/vo-base` 1.3; use a constraint for `PaymentCardNumber` from `msstc4php/vo-finance`. Behaviour is unchanged
+and there is no runtime deprecation notice. Removal is no earlier than 2.0.
+
 ## 1.1.0 - 2026-11-11
 
 **Changed:** the `{{ type }}` parameter of `ValidValueObject` (and every `Assert*`) is a lowercase label such as
