@@ -11,9 +11,9 @@ use MSSTC4PHP\ValueObject\Finance\CreditCardNumber;
  * Asserts that a string is a valid {@see CreditCardNumber}.
  *
  * @deprecated following the deprecation of {@see CreditCardNumber} in vo-base 1.3, use
- *             `new ValidValueObject(PaymentCardNumber::class)` with
- *             MSSTC4PHP\ValueObject\Financial\Card\PaymentCardNumber from msstc4php/vo-finance (keep any custom
- *             message free of `{{ value }}`); removed no earlier than 2.0.
+ *             `new ValidValueObject(PaymentCardNumber::class, 'The value is not a valid payment card number.')` with
+ *             MSSTC4PHP\ValueObject\Financial\Card\PaymentCardNumber from msstc4php/vo-finance (a message without
+ *             `{{ value }}`: the 1.x default quotes the input); removed no earlier than 2.0.
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_METHOD)]
 final class AssertCreditCardNumber extends ValidValueObject

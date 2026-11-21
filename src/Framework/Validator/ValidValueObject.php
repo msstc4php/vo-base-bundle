@@ -14,13 +14,13 @@ use Symfony\Component\Validator\Constraint;
  * value-object class. Validation is delegated entirely to the value object, so
  * the constraint never re-implements a rule.
  *
- * The default message does not quote the input: violations reach API clients and logs, and a field may hold anything
- * typed into it, a card number included. `{{ value }}` is still passed for a custom message that wants it.
+ * The default message quotes the input; give a field that may hold sensitive data (a card number, an IBAN) a message
+ * without `{{ value }}`. The default stops quoting it in 2.0.
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_METHOD)]
 class ValidValueObject extends Constraint
 {
-    public string $message = 'The value is not a valid {{ type }}.';
+    public string $message = 'The value {{ value }} is not a valid {{ type }}.';
 
     /**
      * @param class-string<StringConvertible> $class

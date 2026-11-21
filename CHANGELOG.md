@@ -3,16 +3,19 @@
 ## Unreleased
 
 **Deprecated:** `Framework\Validator\AssertCreditCardNumber`, following `Finance\CreditCardNumber` in
-`msstc4php/vo-base` 1.3; use `new ValidValueObject(PaymentCardNumber::class)` with `PaymentCardNumber` from
-`msstc4php/vo-finance`, and keep any custom message free of `{{ value }}`. There is no runtime deprecation notice.
+`msstc4php/vo-base` 1.3; use `new ValidValueObject(PaymentCardNumber::class, 'The value is not a valid payment card
+number.')` with `PaymentCardNumber` from `msstc4php/vo-finance`. Give it a message without `{{ value }}`: the default
+message quotes the rejected input, which for a card number is almost a real PAN. There is no runtime deprecation notice.
 Removal is no earlier than 2.0.
 
-**Changed:** no constraint message quotes the rejected value any more. The default of `ValidValueObject` is "The value
-is not a valid {{ type }}.", and every `Assert*` reads "The value is not a valid ..." ("The value is not a valid
-IBAN.", "The value is not a valid e-mail address.", and so on). Violations reach API clients and logs, and a field may
-hold anything typed into it: an IBAN, a phone number, a card number in the wrong field. The `{{ value }}` parameter is
-still set, so a custom message can quote the value where that is wanted. Code or translations that matched the old
-text need updating.
+**Changed:** no `Assert*` message quotes the rejected value any more: each reads "The value is not a valid ..." ("The
+value is not a valid IBAN.", "The value is not a valid e-mail address.", and so on). Violations reach API clients and
+logs, and a field may hold anything typed into it: an IBAN, a phone number, a card number in the wrong field. The
+`{{ value }}` parameter is still set, so a custom message can quote the value where that is wanted. Code or
+translations that matched the old text need updating.
+The default message of `ValidValueObject` itself still quotes the value ("The value {{ value }} is not a valid
+{{ type }}."): it is a public property, and changing it waits for 2.0. Until then give a `ValidValueObject` on a
+sensitive field its own message.
 This covers constraint messages only: the `ValueObjectNormalizer` still passes the value object's own exception message
 as the violation's `hint` parameter, and most vo-base exception messages quote a short excerpt of the input (`Iban`
 and `CreditCardNumber` do not).
