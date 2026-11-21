@@ -18,6 +18,6 @@ final class AssertSlug extends ValidValueObject
      */
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct(Slug::class, 'The value {{ value }} is not a valid slug.', $groups, $payload);
+        parent::__construct(Slug::class, 'The value is not a valid slug.', $groups, $payload);
     }
 }

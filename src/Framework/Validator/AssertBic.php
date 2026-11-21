@@ -18,6 +18,6 @@ final class AssertBic extends ValidValueObject
      */
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct(Bic::class, 'The value {{ value }} is not a valid BIC.', $groups, $payload);
+        parent::__construct(Bic::class, 'The value is not a valid BIC.', $groups, $payload);
     }
 }

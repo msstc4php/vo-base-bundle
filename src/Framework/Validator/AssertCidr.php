@@ -18,6 +18,6 @@ final class AssertCidr extends ValidValueObject
      */
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct(Cidr::class, 'The value {{ value }} is not a valid CIDR block.', $groups, $payload);
+        parent::__construct(Cidr::class, 'The value is not a valid CIDR block.', $groups, $payload);
     }
 }

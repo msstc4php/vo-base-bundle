@@ -18,6 +18,6 @@ final class AssertEmailAddress extends ValidValueObject
      */
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct(EmailAddress::class, 'The value {{ value }} is not a valid e-mail address.', $groups, $payload);
+        parent::__construct(EmailAddress::class, 'The value is not a valid e-mail address.', $groups, $payload);
     }
 }

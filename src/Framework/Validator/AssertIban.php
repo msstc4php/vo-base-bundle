@@ -18,6 +18,6 @@ final class AssertIban extends ValidValueObject
      */
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct(Iban::class, 'The value {{ value }} is not a valid IBAN.', $groups, $payload);
+        parent::__construct(Iban::class, 'The value is not a valid IBAN.', $groups, $payload);
     }
 }

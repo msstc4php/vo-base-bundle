@@ -18,6 +18,6 @@ final class AssertIpv4 extends ValidValueObject
      */
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct(Ipv4Address::class, 'The value {{ value }} is not a valid IPv4 address.', $groups, $payload);
+        parent::__construct(Ipv4Address::class, 'The value is not a valid IPv4 address.', $groups, $payload);
     }
 }

@@ -18,6 +18,6 @@ final class AssertTimeOfDay extends ValidValueObject
      */
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct(TimeOfDay::class, 'The value {{ value }} is not a valid time of day.', $groups, $payload);
+        parent::__construct(TimeOfDay::class, 'The value is not a valid time of day.', $groups, $payload);
     }
 }

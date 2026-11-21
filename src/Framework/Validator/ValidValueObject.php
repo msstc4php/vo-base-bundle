@@ -13,11 +13,14 @@ use Symfony\Component\Validator\Constraint;
  * Generic constraint asserting that a string can construct the given
  * value-object class. Validation is delegated entirely to the value object, so
  * the constraint never re-implements a rule.
+ *
+ * The default message does not quote the input: violations reach API clients and logs, and a field may hold anything
+ * typed into it, a card number included. `{{ value }}` is still passed for a custom message that wants it.
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_METHOD)]
 class ValidValueObject extends Constraint
 {
-    public string $message = 'The value {{ value }} is not a valid {{ type }}.';
+    public string $message = 'The value is not a valid {{ type }}.';
 
     /**
      * @param class-string<StringConvertible> $class

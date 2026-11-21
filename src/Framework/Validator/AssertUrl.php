@@ -18,6 +18,6 @@ final class AssertUrl extends ValidValueObject
      */
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct(Url::class, 'The value {{ value }} is not a valid URL.', $groups, $payload);
+        parent::__construct(Url::class, 'The value is not a valid URL.', $groups, $payload);
     }
 }

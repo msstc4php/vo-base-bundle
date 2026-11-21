@@ -18,6 +18,6 @@ final class AssertIpRange extends ValidValueObject
      */
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct(IpRange::class, 'The value {{ value }} is not a valid IP range.', $groups, $payload);
+        parent::__construct(IpRange::class, 'The value is not a valid IP range.', $groups, $payload);
     }
 }

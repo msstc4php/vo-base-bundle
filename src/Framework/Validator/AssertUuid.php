@@ -18,6 +18,6 @@ final class AssertUuid extends ValidValueObject
      */
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct(Uuid::class, 'The value {{ value }} is not a valid UUID.', $groups, $payload);
+        parent::__construct(Uuid::class, 'The value is not a valid UUID.', $groups, $payload);
     }
 }

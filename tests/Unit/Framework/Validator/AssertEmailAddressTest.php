@@ -35,6 +35,6 @@ final class AssertEmailAddressTest extends TestCase
         $violations = $this->validator->validate('nope', new AssertEmailAddress());
 
         self::assertCount(1, $violations);
-        self::assertSame('The value nope is not a valid e-mail address.', $violations->get(0)->getMessage());
+        self::assertSame('The value is not a valid e-mail address.', $violations->get(0)->getMessage());
     }
 }

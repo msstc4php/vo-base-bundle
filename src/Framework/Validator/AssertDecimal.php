@@ -18,6 +18,6 @@ final class AssertDecimal extends ValidValueObject
      */
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct(Decimal::class, 'The value {{ value }} is not a valid decimal number.', $groups, $payload);
+        parent::__construct(Decimal::class, 'The value is not a valid decimal number.', $groups, $payload);
     }
 }

@@ -18,6 +18,6 @@ final class AssertDuration extends ValidValueObject
      */
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct(Duration::class, 'The value {{ value }} is not a valid ISO 8601 duration.', $groups, $payload);
+        parent::__construct(Duration::class, 'The value is not a valid ISO 8601 duration.', $groups, $payload);
     }
 }

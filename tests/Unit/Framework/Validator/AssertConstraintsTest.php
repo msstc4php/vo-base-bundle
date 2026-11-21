@@ -54,31 +54,31 @@ final class AssertConstraintsTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{class-string<Constraint>, string, string}>
+     * @return iterable<string, array{class-string<Constraint>, string, string, string}> constraint, valid, invalid, message
      */
     public static function constraints(): iterable
     {
-        yield 'email' => [AssertEmailAddress::class, 'user@example.com', 'nope'];
-        yield 'ipv4' => [AssertIpv4::class, '192.168.0.1', '999.1.1.1'];
-        yield 'phone' => [AssertPhoneNumber::class, '+14155552671', 'abc'];
-        yield 'slug' => [AssertSlug::class, 'my-slug', 'Not a Slug!'];
-        yield 'url' => [AssertUrl::class, 'https://example.com/a', 'not a url'];
-        yield 'uuid' => [AssertUuid::class, '018f8c1e-7b2a-7cde-8f01-2a3b4c5d6e7f', 'not-a-uuid'];
-        yield 'iban' => [AssertIban::class, 'GB82WEST12345698765432', 'not-an-iban'];
-        yield 'bic' => [AssertBic::class, 'DEUTDEFF', 'nope'];
-        yield 'credit_card_number' => [AssertCreditCardNumber::class, '4111111111111111', '4111111111111112'];
-        yield 'decimal' => [AssertDecimal::class, '1.23', 'not-a-number'];
-        yield 'cidr' => [AssertCidr::class, '192.168.0.0/24', 'not-a-cidr'];
-        yield 'ip_range' => [AssertIpRange::class, '10.0.0.5-10.0.0.20', '10.0.0.20-10.0.0.5'];
-        yield 'time_of_day' => [AssertTimeOfDay::class, '09:30:00', '25:00:00'];
-        yield 'duration' => [AssertDuration::class, 'PT30S', 'not-a-duration'];
+        yield 'email' => [AssertEmailAddress::class, 'user@example.com', 'nope', 'The value is not a valid e-mail address.'];
+        yield 'ipv4' => [AssertIpv4::class, '192.168.0.1', '999.1.1.1', 'The value is not a valid IPv4 address.'];
+        yield 'phone' => [AssertPhoneNumber::class, '+14155552671', 'abc', 'The value is not a valid phone number.'];
+        yield 'slug' => [AssertSlug::class, 'my-slug', 'Not a Slug!', 'The value is not a valid slug.'];
+        yield 'url' => [AssertUrl::class, 'https://example.com/a', 'not a url', 'The value is not a valid URL.'];
+        yield 'uuid' => [AssertUuid::class, '018f8c1e-7b2a-7cde-8f01-2a3b4c5d6e7f', 'not-a-uuid', 'The value is not a valid UUID.'];
+        yield 'iban' => [AssertIban::class, 'GB82WEST12345698765432', 'not-an-iban', 'The value is not a valid IBAN.'];
+        yield 'bic' => [AssertBic::class, 'DEUTDEFF', 'nope', 'The value is not a valid BIC.'];
+        yield 'credit_card_number' => [AssertCreditCardNumber::class, '4111111111111111', '4111111111111112', 'The value is not a valid credit card number.'];
+        yield 'decimal' => [AssertDecimal::class, '1.23', 'not-a-number', 'The value is not a valid decimal number.'];
+        yield 'cidr' => [AssertCidr::class, '192.168.0.0/24', 'not-a-cidr', 'The value is not a valid CIDR block.'];
+        yield 'ip_range' => [AssertIpRange::class, '10.0.0.5-10.0.0.20', '10.0.0.20-10.0.0.5', 'The value is not a valid IP range.'];
+        yield 'time_of_day' => [AssertTimeOfDay::class, '09:30:00', '25:00:00', 'The value is not a valid time of day.'];
+        yield 'duration' => [AssertDuration::class, 'PT30S', 'not-a-duration', 'The value is not a valid ISO 8601 duration.'];
     }
 
     /**
      * @param class-string<Constraint> $constraintClass
      */
     #[DataProvider('constraints')]
-    public function testValidValueHasNoViolations(string $constraintClass, string $valid, string $invalid): void
+    public function testValidValueHasNoViolations(string $constraintClass, string $valid, string $invalid, string $message): void
     {
         self::assertCount(0, $this->validator->validate($valid, new $constraintClass()));
     }
@@ -87,9 +87,12 @@ final class AssertConstraintsTest extends TestCase
      * @param class-string<Constraint> $constraintClass
      */
     #[DataProvider('constraints')]
-    public function testInvalidValueHasOneViolation(string $constraintClass, string $valid, string $invalid): void
+    public function testInvalidValueHasOneViolationThatDoesNotQuoteIt(string $constraintClass, string $valid, string $invalid, string $message): void
     {
-        self::assertCount(1, $this->validator->validate($invalid, new $constraintClass()));
+        $violations = $this->validator->validate($invalid, new $constraintClass());
+
+        self::assertCount(1, $violations);
+        self::assertSame($message, $violations[0]?->getMessage());
     }
 
     public function testTheCreditCardMessageDoesNotQuoteTheNumber(): void

@@ -18,6 +18,6 @@ final class AssertPhoneNumber extends ValidValueObject
      */
     public function __construct(?array $groups = null, mixed $payload = null)
     {
-        parent::__construct(PhoneNumber::class, 'The value {{ value }} is not a valid phone number.', $groups, $payload);
+        parent::__construct(PhoneNumber::class, 'The value is not a valid phone number.', $groups, $payload);
     }
 }
