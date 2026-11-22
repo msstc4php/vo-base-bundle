@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.0 - 2026-11-22
 
 **Deprecated:** `Framework\Validator\AssertCreditCardNumber`, following `Finance\CreditCardNumber` in
 `msstc4php/vo-base` 1.3; use `new ValidValueObject(PaymentCardNumber::class)` with `PaymentCardNumber` from
