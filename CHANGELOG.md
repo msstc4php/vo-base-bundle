@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0 - unreleased
+## 2.1.0 - 2026-11-23
 
 **Added:** the `codec_providers` option lists classes implementing vo-base's `Payload\ProvidesCodecs`; their codecs
 join the mapper of the serializer normalizer and the route argument resolver. vo-documents' composite names need
