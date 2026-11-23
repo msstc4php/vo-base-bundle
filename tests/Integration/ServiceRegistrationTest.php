@@ -9,6 +9,7 @@ use MSSTC4PHP\ValueObject\Bundle\Framework\Serializer\ValueObjectNormalizer;
 use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\ValidValueObjectValidator;
 use MSSTC4PHP\ValueObject\Bundle\Msstc4phpVoBaseBundle;
 use MSSTC4PHP\ValueObject\Bundle\Test\Support\TestConfigurator;
+use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\RangeCodecs;
 use MSSTC4PHP\ValueObject\Payload\PayloadCodec;
 use MSSTC4PHP\ValueObject\Payload\ValueObjectMapper;
 use PHPUnit\Framework\Attributes\CoversNothing;
@@ -62,6 +63,24 @@ final class ServiceRegistrationTest extends TestCase
             [Msstc4phpVoBaseBundle::PAYLOAD_CODEC_TAG => [[]]],
             $container->getAutoconfiguredInstanceof()[PayloadCodec::class]->getTags(),
         );
+    }
+
+    public function testTheProvidersBecomeAParameterOfTheMapper(): void
+    {
+        $container = new ContainerBuilder();
+
+        new Msstc4phpVoBaseBundle()->loadExtension(['codec_providers' => [RangeCodecs::class, RangeCodecs::class]], TestConfigurator::for($container), $container);
+
+        self::assertSame([RangeCodecs::class], $container->getParameter('msstc4php_vo_base.codec_providers'));
+    }
+
+    public function testProvidersNeedOnlyOneGroupThatUsesTheMapper(): void
+    {
+        $container = new ContainerBuilder();
+
+        new Msstc4phpVoBaseBundle()->loadExtension(['serializer' => false, 'codec_providers' => [RangeCodecs::class]], TestConfigurator::for($container), $container);
+
+        self::assertSame([RangeCodecs::class], $container->getParameter('msstc4php_vo_base.codec_providers'));
     }
 
     public function testNoMapperWithoutAGroupThatNeedsIt(): void

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Types\Type;
 use LogicException;
 use MSSTC4PHP\ValueObject\Doctrine\Orm\TypeRegistrar;
 use MSSTC4PHP\ValueObject\Payload\PayloadCodec;
+use MSSTC4PHP\ValueObject\Payload\ProvidesCodecs;
 use Override;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -74,6 +75,15 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
                 ->booleanNode('value_resolver')->defaultNull()
                     ->info('Resolve controller arguments typed with a value object from route attributes. Null means on.')
                 ->end()
+                ->arrayNode('codec_providers')
+                    ->info('Classes implementing MSSTC4PHP\\ValueObject\\Payload\\ProvidesCodecs whose codecs join the mapper, e.g. MSSTC4PHP\\ValueObject\\Documents\\Codecs.')
+                    ->scalarPrototype()
+                        ->validate()
+                            ->ifTrue(static fn (mixed $class): bool => !\is_string($class) || !\is_a($class, ProvidesCodecs::class, true))
+                            ->thenInvalid('%s does not implement ' . ProvidesCodecs::class . '.')
+                        ->end()
+                    ->end()
+                ->end()
             ->end()
         ;
     }
@@ -116,11 +126,17 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
     #[Override]
     public function loadExtension(array $config, ContainerConfigurator $configurator, ContainerBuilder $container): void
     {
+        $providers = $this->codecProviders($config);
         $this->loadGroup($configurator, $this->requestedFlag($config, 'validator'), 'validator', $this->validatorAvailable(), 'symfony/validator');
         $serializer = $this->loadGroup($configurator, $this->requestedFlag($config, 'serializer'), 'serializer', $this->serializerAvailable(), 'symfony/serializer');
         $resolver = $this->loadGroup($configurator, $this->requestedFlag($config, 'value_resolver'), 'value_resolver', true, 'symfony/http-kernel');
 
+        if (!$serializer && !$resolver && $providers !== []) {
+            throw new LogicException('msstc4php_vo_base.codec_providers needs the serializer or the value_resolver group: only they use the mapper.');
+        }
+
         if ($serializer || $resolver) {
+            $container->setParameter('msstc4php_vo_base.codec_providers', $providers);
             $configurator->import(__DIR__ . '/Resources/config/payload.php');
             $container->registerForAutoconfiguration(PayloadCodec::class)->addTag(self::PAYLOAD_CODEC_TAG);
         }
@@ -217,6 +233,26 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
         $types = $registrar::types();
 
         return $types;
+    }
+
+    /**
+     * @param array<array-key, mixed> $config
+     *
+     * @return list<class-string<ProvidesCodecs>>
+     */
+    private function codecProviders(array $config): array
+    {
+        $providers = [];
+        foreach ((array) ($config['codec_providers'] ?? []) as $class) {
+            if (!\is_string($class) || !\is_a($class, ProvidesCodecs::class, true)) {
+                throw new LogicException(\sprintf('msstc4php_vo_base.codec_providers lists %s, which does not implement %s.', \is_string($class) ? $class : get_debug_type($class), ProvidesCodecs::class));
+            }
+
+            $providers[] = $class;
+        }
+
+        // Several configuration blocks (when@env) append to the list.
+        return \array_values(\array_unique($providers));
     }
 
     /**

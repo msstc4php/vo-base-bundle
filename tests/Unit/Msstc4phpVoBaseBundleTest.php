@@ -14,11 +14,13 @@ use MSSTC4PHP\ValueObject\Bundle\Test\Support\TestConfigurator;
 use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleWithoutDoctrinePackage;
 use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleWithoutSerializer;
 use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleWithoutValidator;
+use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\RangeCodecs;
 use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\StubExtension;
 use MSSTC4PHP\ValueObject\Doctrine\Odm\TypeRegistrar as OdmRegistrar;
 use MSSTC4PHP\ValueObject\Doctrine\Orm\TypeRegistrar as OrmRegistrar;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -260,6 +262,25 @@ final class Msstc4phpVoBaseBundleTest extends TestCase
         $this->expectExceptionMessage('msstc4php_vo_base.serializer is enabled but symfony/serializer is not installed.');
 
         new BundleWithoutSerializer()->loadExtension(['validator' => false, 'serializer' => true], $this->configurator($container), $container);
+    }
+
+    public function testAProviderThatIsNoProvidesCodecsIsRefusedWhenTheTreeIsBypassed(): void
+    {
+        $container = new ContainerBuilder();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('msstc4php_vo_base.codec_providers lists stdClass, which does not implement');
+
+        new Msstc4phpVoBaseBundle()->loadExtension(['codec_providers' => [stdClass::class]], TestConfigurator::for($container), $container);
+    }
+
+    public function testProvidersWithoutAGroupThatUsesTheMapperAreAConfigurationError(): void
+    {
+        $container = new ContainerBuilder();
+
+        $this->expectExceptionObject(new LogicException('msstc4php_vo_base.codec_providers needs the serializer or the value_resolver group: only they use the mapper.'));
+
+        new Msstc4phpVoBaseBundle()->loadExtension(['validator' => false, 'serializer' => false, 'value_resolver' => false, 'codec_providers' => [RangeCodecs::class]], TestConfigurator::for($container), $container);
     }
 
     /**

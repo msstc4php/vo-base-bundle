@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.1.0 - unreleased
+
+**Added:** the `codec_providers` option lists classes implementing vo-base's `Payload\ProvidesCodecs`; their codecs
+join the mapper of the serializer normalizer and the route argument resolver. vo-documents' composite names need
+`MSSTC4PHP\ValueObject\Documents\Codecs` there instead of 21 service definitions. An autoconfigured `PayloadCodec`
+service still wins for the same class. A listed class that is not a `ProvidesCodecs` fails the container build, and so
+does a list while both the `serializer` and the `value_resolver` groups are off (nothing would use the codecs).
+
+**Changed:** requires `msstc4php/vo-base ^1.4` (was `^1.1`), the first release with `ProvidesCodecs` and the mapper's
+support for abstract classes that resolve their concrete class (vo-documents' `MachineReadableZone`).
+
 ## 2.0.0 - 2026-11-22
 
 **Deprecated:** `Framework\Validator\AssertCreditCardNumber`, following `Finance\CreditCardNumber` in

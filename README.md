@@ -49,7 +49,12 @@ msstc4php_vo_base:
     validator: ~
     serializer: ~      # value objects in the Serializer, e.g. behind #[MapRequestPayload]
     value_resolver: ~  # controller arguments from route attributes; on unless false
+    codec_providers: []  # classes implementing ProvidesCodecs, e.g. MSSTC4PHP\ValueObject\Documents\Codecs
 ```
+
+`codec_providers` adds a package's payload codecs to the bundle's mapper in one line: vo-documents' composite names
+need `MSSTC4PHP\ValueObject\Documents\Codecs` there, instead of one service per country codec. A class that does not
+implement `MSSTC4PHP\ValueObject\Payload\ProvidesCodecs` fails the container build.
 
 `true` makes a missing dependency an error at container build time instead of
 silent absence — useful when a deployment must not start without the types.
@@ -66,7 +71,9 @@ public string $email = '';
 The constraint runs the value object's own constructor and turns its exception
 into a violation, so the rule lives in one place rather than being restated as
 constraint options. `ValidValueObject` does the same for any value object by
-class name.
+class name. It validates a string through the class's `from()`, without the mapper or its codecs, so it covers
+string-backed value objects (an abstract `ResolvesConcreteClass` such as vo-documents' `MachineReadableZone` too);
+a composite is validated where it is deserialized, by the serializer.
 
 ## Serializer
 
@@ -89,7 +96,8 @@ their storage form: strings, numbers, and `{"min": 1, "max": 5}`-style objects f
 `DateRange` (with microseconds and offset, unlike `jsonSerialize()`; input must carry an offset). `BoundedString` is
 never built from input (a `BoundedString` property is a 422): its payload carries the length limits, so the client
 would choose them; type the property as `string` and validate it with `Length` instead. Numbers are also accepted as
-numeric strings (`"8080"`), as they arrive from forms, XML and CSV. Your own composite value objects work once their `PayloadCodec` is a service: it is autoconfigured.
+numeric strings (`"8080"`), as they arrive from forms, XML and CSV. Your own composite value objects work once their `PayloadCodec` is a service: it is autoconfigured, and replaces a
+codec of `codec_providers` for the same class.
 
 ## Route arguments
 
