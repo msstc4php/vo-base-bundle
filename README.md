@@ -91,6 +91,18 @@ never built from input (a `BoundedString` property is a 422): its payload carrie
 would choose them; type the property as `string` and validate it with `Length` instead. Numbers are also accepted as
 numeric strings (`"8080"`), as they arrive from forms, XML and CSV. Your own composite value objects work once their `PayloadCodec` is a service: it is autoconfigured.
 
+A package's codecs can be registered as services in one block. For vo-documents' composite names:
+
+```yaml
+# config/services.yaml
+services:
+    _defaults: { autoconfigure: true }
+    MSSTC4PHP\ValueObject\Documents\Name\:
+        resource: '%kernel.project_dir%/vendor/msstc4php/vo-documents/src/Name/**/PersonNameCodec.php'
+```
+
+Bundle 2.1 does the same from one option, `codec_providers: ['MSSTC4PHP\ValueObject\Documents\Codecs']`.
+
 ## Route arguments
 
 ```php
