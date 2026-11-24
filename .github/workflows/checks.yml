@@ -64,5 +64,5 @@ jobs:
           msstc4php/vo-gs1-doctrine msstc4php/vo-identifiers-doctrine
           msstc4php/vo-documents-doctrine msstc4php/vo-finance-doctrine
       - run: composer update --prefer-lowest --prefer-stable --prefer-dist --no-progress --no-interaction
-      - run: composer show msstc4php/vo-base msstc4php/vo-base-doctrine
+      - run: composer show | grep -E "^msstc4php/vo-base(-doctrine)? "
       - run: vendor/bin/phpunit
