@@ -43,3 +43,26 @@ jobs:
           tools: composer:v2
       - run: composer update --prefer-dist --no-progress --no-interaction
       - run: php tools/check-autoload-isolation.php "$PWD/src" 'MSSTC4PHP\ValueObject\Bundle\'
+
+  # The domain Doctrine packages in composer-ci.json need vo-base ^1.4 and vo-base-doctrine ^1.3, so the standard
+  # lowest cell no longer reaches the floors composer.json declares. This cell drops them and proves those floors.
+  lowest-without-domain-packages:
+    name: PHPUnit, lowest dependencies, no domain Doctrine packages
+    runs-on: ubuntu-latest
+    env:
+      COMPOSER: composer-ci.json
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: 'mbstring, xml, ctype, iconv, intl, bcmath, mongodb, pdo_sqlite'
+          coverage: none
+          tools: composer:v2
+      - run: >-
+          composer remove --dev --no-update --no-interaction
+          msstc4php/vo-gs1-doctrine msstc4php/vo-identifiers-doctrine
+          msstc4php/vo-documents-doctrine msstc4php/vo-finance-doctrine
+      - run: composer update --prefer-lowest --prefer-stable --prefer-dist --no-progress --no-interaction
+      - run: composer show msstc4php/vo-base msstc4php/vo-base-doctrine
+      - run: vendor/bin/phpunit

@@ -19,7 +19,7 @@ Neither package is on Packagist yet:
         { "type": "vcs", "url": "https://github.com/msstc4php/vo-base-bundle" }
     ],
     "require": {
-        "msstc4php/vo-base-bundle": "^2.1"
+        "msstc4php/vo-base-bundle": "^2.2"
     }
 }
 ```
@@ -74,11 +74,34 @@ these packages that is installed:
 | `msstc4php/vo-documents-doctrine` | `vod_*` |
 | `msstc4php/vo-finance-doctrine` | `fin_*` |
 
-The bundle only suggests them: install the ones you need (each from its GitHub repository, like the packages above),
-and nothing else is needed. A package that is not installed adds nothing and is no error. The map is prepended, so a
-type of the same name in your own `doctrine.dbal.types` or `doctrine_mongodb.types` still wins.
+The bundle only suggests them: install the ones you need, and nothing else is needed. None of them is on Packagist,
+and Composer reads repositories from your root `composer.json` only, so each `vo-X-doctrine` needs its own repository
+and the one of `vo-X`; vo-identifiers also needs vo-gs1. For example, for the GS1 and identifier types:
 
-`domain_types: false` keeps only the vo-base-doctrine types, for example when you map the domain types yourself.
+```json
+{
+    "repositories": [
+        { "type": "vcs", "url": "https://github.com/msstc4php/vo-gs1" },
+        { "type": "vcs", "url": "https://github.com/msstc4php/vo-gs1-doctrine" },
+        { "type": "vcs", "url": "https://github.com/msstc4php/vo-identifiers" },
+        { "type": "vcs", "url": "https://github.com/msstc4php/vo-identifiers-doctrine" }
+    ],
+    "require": {
+        "msstc4php/vo-gs1-doctrine": "^1.0",
+        "msstc4php/vo-identifiers-doctrine": "^1.0"
+    }
+}
+```
+
+A package that is not installed adds nothing and is no error. The map is prepended, so a type of the same name in your
+own `doctrine.dbal.types` or `doctrine_mongodb.types` still wins. Between the packages a name is never shared (distinct
+prefixes); if it were, the vo-base-doctrine type and then the earlier package in the table would keep it.
+
+Every listed DBAL type is created on the first connection of each PHP process (DoctrineBundle registers the whole map;
+ODM stores only class names). The four packages together add about 300 types: measured on PHP 8.4 CLI, that is about
+5 ms and 1.6 MB more per process than the 40 vo-base-doctrine types alone (6 ms against 1 ms with opcache). If you
+use only a few domain types, `domain_types: false` keeps only the vo-base-doctrine types and you map those few
+yourself.
 
 ## Validating raw input
 
@@ -140,7 +163,9 @@ make fix     # cs-fixer + Rector, applied
 
 The Doctrine stack sits only in `composer-ci.json`, purely for the bundle and
 integration tests. A CI job installs `composer.json` without it and still expects
-every class to load — that is what keeps "suggest, not require" honest.
+every class to load — that is what keeps "suggest, not require" honest. Another job drops the domain Doctrine
+packages and runs the tests on the lowest dependencies, so the `vo-base ^1.4` and `vo-base-doctrine ^1.1` floors stay
+proven.
 
 [core]: https://github.com/msstc4php/vo-base
 [doctrine]: https://github.com/msstc4php/vo-base-doctrine
