@@ -65,12 +65,20 @@ final class IntegrationKernel extends Kernel
     #[Override]
     public function getCacheDir(): string
     {
-        return \sys_get_temp_dir() . '/vo-base-bundle-kernel/' . $this->id . '/cache';
+        return $this->varDir() . '/cache';
     }
 
     #[Override]
     public function getLogDir(): string
     {
-        return \sys_get_temp_dir() . '/vo-base-bundle-kernel/' . $this->id . '/log';
+        return $this->varDir() . '/log';
+    }
+
+    /**
+     * Keyed by checkout: a container compiled in another checkout includes that checkout's vendor files.
+     */
+    private function varDir(): string
+    {
+        return \sys_get_temp_dir() . '/vo-base-bundle-kernel/' . \hash('xxh3', \dirname(__DIR__, 3)) . '/' . $this->id;
     }
 }

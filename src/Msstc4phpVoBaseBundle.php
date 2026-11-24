@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSSTC4PHP\ValueObject\Bundle;
 
+use Closure;
 use Doctrine\DBAL\Types\Type;
 use LogicException;
 use MSSTC4PHP\ValueObject\Doctrine\Orm\TypeRegistrar;
@@ -66,7 +67,8 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
 
     private const string ODM_BASE = \Doctrine\ODM\MongoDB\Types\Type::class;
 
-    /** @var list<class-string> */
+    // Plain strings, not class-string: whether the classes exist is exactly what typesFrom() checks.
+    /** @var list<string> */
     private const array DOMAIN_ORM_REGISTRARS = [
         Gs1OrmRegistrar::class,
         IdentifiersOrmRegistrar::class,
@@ -74,7 +76,7 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
         FinancialOrmRegistrar::class,
     ];
 
-    /** @var list<class-string> */
+    /** @var list<string> */
     private const array DOMAIN_ODM_REGISTRARS = [
         Gs1OdmRegistrar::class,
         IdentifiersOdmRegistrar::class,
@@ -123,7 +125,7 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
         $this->prependTypes(
             $container,
             'doctrine',
-            $this->withDomainTypes($this->ormTypes(), $domain, $this->domainOrmRegistrars(), self::ORM_BASE),
+            fn (): ?array => $this->withDomainTypes($this->ormTypes(), $domain, $this->domainOrmRegistrars(), $this->ormBase()),
             $this->requestedFlag($config, 'orm'),
             'orm',
             static fn (array $types): array => ['dbal' => ['types' => $types]],
@@ -132,7 +134,7 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
         $this->prependTypes(
             $container,
             'doctrine_mongodb',
-            $this->withDomainTypes($this->odmTypes(), $domain, $this->domainOdmRegistrars(), self::ODM_BASE),
+            fn (): ?array => $this->withDomainTypes($this->odmTypes(), $domain, $this->domainOdmRegistrars(), $this->odmBase()),
             $this->requestedFlag($config, 'odm'),
             'odm',
             static fn (array $types): array => ['types' => $types],
@@ -169,22 +171,28 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
     }
 
     /**
+     * @internal test seam, not an extension point
+     *
      * @return array<string, class-string>|null null when msstc4php/vo-base-doctrine is absent
      */
     protected function ormTypes(): ?array
     {
-        return $this->typesFrom(self::ORM_REGISTRAR, self::ORM_BASE);
+        return $this->typesFrom(self::ORM_REGISTRAR, $this->ormBase());
     }
 
     /**
+     * @internal test seam, not an extension point
+     *
      * @return array<string, class-string>|null null when msstc4php/vo-base-doctrine is absent
      */
     protected function odmTypes(): ?array
     {
-        return $this->typesFrom(self::ODM_REGISTRAR, self::ODM_BASE);
+        return $this->typesFrom(self::ODM_REGISTRAR, $this->odmBase());
     }
 
     /**
+     * @internal test seam, not an extension point
+     *
      * @return list<string>
      */
     protected function domainOrmRegistrars(): array
@@ -193,11 +201,29 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
     }
 
     /**
+     * @internal test seam, not an extension point
+     *
      * @return list<string>
      */
     protected function domainOdmRegistrars(): array
     {
         return self::DOMAIN_ODM_REGISTRARS;
+    }
+
+    /**
+     * @internal test seam, not an extension point
+     */
+    protected function ormBase(): string
+    {
+        return self::ORM_BASE;
+    }
+
+    /**
+     * @internal test seam, not an extension point
+     */
+    protected function odmBase(): string
+    {
+        return self::ODM_BASE;
     }
 
     /**
@@ -220,13 +246,15 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
     }
 
     /**
-     * @param array<string, class-string>|null $types
+     * The map is built only once registration is still possible: reading it autoloads every type class.
+     *
+     * @param Closure(): (array<string, class-string>|null) $types
      * @param callable(array<string, class-string>): array<string, mixed> $shape
      */
     private function prependTypes(
         ContainerBuilder $container,
         string $extension,
-        ?array $types,
+        Closure $types,
         ?bool $requested,
         string $node,
         callable $shape,
@@ -235,7 +263,14 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
             return;
         }
 
-        $available = $types !== null && $container->hasExtension($extension);
+        $hasExtension = $container->hasExtension($extension);
+
+        if (!$hasExtension && $requested !== true) {
+            return;
+        }
+
+        $types = $types();
+        $available = $types !== null && $hasExtension;
 
         if (!$available) {
             if ($requested === true) {

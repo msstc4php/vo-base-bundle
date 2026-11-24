@@ -11,7 +11,9 @@ use MSSTC4PHP\ValueObject\Bundle\Framework\Serializer\ValueObjectNormalizer;
 use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\ValidValueObjectValidator;
 use MSSTC4PHP\ValueObject\Bundle\Msstc4phpVoBaseBundle;
 use MSSTC4PHP\ValueObject\Bundle\Test\Support\TestConfigurator;
+use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleCountingTypeLookups;
 use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleWithClashingRegistrars;
+use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleWithOnlyOneDoctrineStack;
 use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleWithoutDoctrinePackage;
 use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleWithoutDomainPackages;
 use MSSTC4PHP\ValueObject\Bundle\Test\Unit\Fixtures\BundleWithoutSerializer;
@@ -104,6 +106,45 @@ final class Msstc4phpVoBaseBundleTest extends TestCase
 
         $expected = \count(OrmRegistrar::types()) + \array_sum(\array_map(static fn (string $r): int => \count($r::types()), self::DOMAIN_ORM_REGISTRARS));
         self::assertCount($expected, $orm, 'No two packages may share a type name.');
+
+        $expected = \count(OdmRegistrar::types()) + \array_sum(\array_map(static fn (string $r): int => \count($r::types()), self::DOMAIN_ODM_REGISTRARS));
+        self::assertCount($expected, $odm, 'No two packages may share a type name.');
+    }
+
+    /**
+     * Each branch is gated by its own base type: with the other stack missing, a branch still gets its domain types,
+     * and the missing one gets nothing.
+     */
+    public function testEachBranchIsGatedByItsOwnBaseType(): void
+    {
+        $this->requireDomainPackages();
+
+        $ormOnly = $this->containerWith(['doctrine', 'doctrine_mongodb']);
+        new BundleWithOnlyOneDoctrineStack(withOrm: true)->prependExtension($this->configurator($ormOnly), $ormOnly);
+
+        self::assertSame([['dbal' => ['types' => $this->installedTypes(OrmRegistrar::types(), self::DOMAIN_ORM_REGISTRARS)]]], $ormOnly->getExtensionConfig('doctrine'));
+        self::assertSame([], $ormOnly->getExtensionConfig('doctrine_mongodb'));
+
+        $odmOnly = $this->containerWith(['doctrine', 'doctrine_mongodb']);
+        new BundleWithOnlyOneDoctrineStack(withOrm: false)->prependExtension($this->configurator($odmOnly), $odmOnly);
+
+        self::assertSame([], $odmOnly->getExtensionConfig('doctrine'));
+        self::assertSame([['types' => $this->installedTypes(OdmRegistrar::types(), self::DOMAIN_ODM_REGISTRARS)]], $odmOnly->getExtensionConfig('doctrine_mongodb'));
+    }
+
+    public function testTheTypeMapIsNotReadWhenNothingCanBeRegistered(): void
+    {
+        $switchedOff = new BundleCountingTypeLookups();
+        $container = $this->containerWith(['doctrine', 'doctrine_mongodb']);
+        $this->loadBlocks($switchedOff, $container, [['orm' => false, 'odm' => false]]);
+        $switchedOff->prependExtension($this->configurator($container), $container);
+
+        $noExtension = new BundleCountingTypeLookups();
+        $bare = $this->containerWith([]);
+        $noExtension->prependExtension($this->configurator($bare), $bare);
+
+        self::assertSame(0, $switchedOff->lookups);
+        self::assertSame(0, $noExtension->lookups);
     }
 
     public function testDomainTypesCanBeSwitchedOff(): void
