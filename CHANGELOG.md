@@ -7,7 +7,12 @@ the types of every installed `msstc4php/vo-gs1-doctrine`, `msstc4php/vo-identifi
 `msstc4php/vo-documents-doctrine` and `msstc4php/vo-finance-doctrine`, with the same checks as for
 `msstc4php/vo-base-doctrine`: the registrar class and the Doctrine base type must both exist, so an ODM-only install
 loads no ORM types. The packages are suggested, not required. Types of the same name in the application's own Doctrine
-configuration still win. The new option `domain_types` (default `true`) switches this off.
+configuration still win; between the packages, vo-base-doctrine and then the earlier package keep a shared name (none
+is shared today). The new option `domain_types` (default `true`) switches this off. Each installed package's DBAL types
+are created on the first connection of every process (all four: about 300 types, about 5 ms and 1.6 MB on PHP 8.4
+CLI); set `domain_types: false` and map the few you use if that matters.
+
+**Changed:** the type map is no longer built when `orm`/`odm` is `false` or the Doctrine extension is absent.
 
 ## 1.2.0 - 2026-11-22
 
