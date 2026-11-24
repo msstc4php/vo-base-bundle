@@ -171,8 +171,6 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
     }
 
     /**
-     * @internal test seam, not an extension point
-     *
      * @return array<string, class-string>|null null when msstc4php/vo-base-doctrine is absent
      */
     protected function ormTypes(): ?array
@@ -181,8 +179,6 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
     }
 
     /**
-     * @internal test seam, not an extension point
-     *
      * @return array<string, class-string>|null null when msstc4php/vo-base-doctrine is absent
      */
     protected function odmTypes(): ?array
