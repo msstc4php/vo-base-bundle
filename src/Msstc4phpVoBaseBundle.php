@@ -7,6 +7,14 @@ namespace MSSTC4PHP\ValueObject\Bundle;
 use Doctrine\DBAL\Types\Type;
 use LogicException;
 use MSSTC4PHP\ValueObject\Doctrine\Orm\TypeRegistrar;
+use MSSTC4PHP\ValueObject\Documents\Doctrine\Odm\TypeRegistrar as DocumentsOdmRegistrar;
+use MSSTC4PHP\ValueObject\Documents\Doctrine\Orm\TypeRegistrar as DocumentsOrmRegistrar;
+use MSSTC4PHP\ValueObject\Financial\Doctrine\Odm\TypeRegistrar as FinancialOdmRegistrar;
+use MSSTC4PHP\ValueObject\Financial\Doctrine\Orm\TypeRegistrar as FinancialOrmRegistrar;
+use MSSTC4PHP\ValueObject\Gs1\Doctrine\Odm\TypeRegistrar as Gs1OdmRegistrar;
+use MSSTC4PHP\ValueObject\Gs1\Doctrine\Orm\TypeRegistrar as Gs1OrmRegistrar;
+use MSSTC4PHP\ValueObject\Identifiers\Doctrine\Odm\TypeRegistrar as IdentifiersOdmRegistrar;
+use MSSTC4PHP\ValueObject\Identifiers\Doctrine\Orm\TypeRegistrar as IdentifiersOrmRegistrar;
 use MSSTC4PHP\ValueObject\Payload\PayloadCodec;
 use MSSTC4PHP\ValueObject\Payload\ProvidesCodecs;
 use Override;
@@ -30,6 +38,10 @@ use Symfony\Component\Validator\Constraint;
  * Doctrine extension has to be there (somewhere to prepend into). Requiring the
  * package instead would hand every Doctrine type to a Symfony consumer with no Doctrine
  * at all, and tie the two release cycles together.
+ *
+ * The domain Doctrine packages (vo-gs1-doctrine, vo-identifiers-doctrine,
+ * vo-documents-doctrine, vo-finance-doctrine) are suggested the same way and
+ * pass the same gate, each on its own: whichever are installed join the map.
  *
  * Not final: a bundle is a framework extension point, and overriding the
  * availability lookups is how the "package not installed" paths get exercised
@@ -55,6 +67,22 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
 
     private const string ODM_BASE = \Doctrine\ODM\MongoDB\Types\Type::class;
 
+    /** @var list<class-string> */
+    private const array DOMAIN_ORM_REGISTRARS = [
+        Gs1OrmRegistrar::class,
+        IdentifiersOrmRegistrar::class,
+        DocumentsOrmRegistrar::class,
+        FinancialOrmRegistrar::class,
+    ];
+
+    /** @var list<class-string> */
+    private const array DOMAIN_ODM_REGISTRARS = [
+        Gs1OdmRegistrar::class,
+        IdentifiersOdmRegistrar::class,
+        DocumentsOdmRegistrar::class,
+        FinancialOdmRegistrar::class,
+    ];
+
     #[Override]
     public function configure(DefinitionConfigurator $definition): void
     {
@@ -65,6 +93,9 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
                 ->end()
                 ->booleanNode('odm')->defaultNull()
                     ->info('Register the ODM types. Null auto-detects; true fails if msstc4php/vo-base-doctrine or the doctrine_mongodb extension is missing.')
+                ->end()
+                ->booleanNode('domain_types')->defaultTrue()
+                    ->info('Add the types of the installed domain Doctrine packages (vo-gs1-doctrine, vo-identifiers-doctrine, vo-documents-doctrine, vo-finance-doctrine) to the orm and odm maps. False keeps only the vo-base-doctrine types.')
                 ->end()
                 ->booleanNode('validator')->defaultNull()
                     ->info('Register the ValidValueObject constraint validator. Null auto-detects.')
@@ -97,11 +128,12 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
 
         // Every block counts: when@env and config/packages/<env>/ arrive as separate ones, the later winning.
         $config = \array_merge(...$container->getExtensionConfig($alias));
+        $domain = $this->requestedFlag($config, 'domain_types') !== false;
 
         $this->prependTypes(
             $container,
             'doctrine',
-            $this->ormTypes(),
+            $this->withDomainTypes($this->ormTypes(), $domain, $this->domainOrmRegistrars(), self::ORM_BASE),
             $this->requestedFlag($config, 'orm'),
             'orm',
             static fn (array $types): array => ['dbal' => ['types' => $types]],
@@ -110,7 +142,7 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
         $this->prependTypes(
             $container,
             'doctrine_mongodb',
-            $this->odmTypes(),
+            $this->withDomainTypes($this->odmTypes(), $domain, $this->domainOdmRegistrars(), self::ODM_BASE),
             $this->requestedFlag($config, 'odm'),
             'odm',
             static fn (array $types): array => ['types' => $types],
@@ -169,6 +201,22 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
     }
 
     /**
+     * @return list<string>
+     */
+    protected function domainOrmRegistrars(): array
+    {
+        return self::DOMAIN_ORM_REGISTRARS;
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function domainOdmRegistrars(): array
+    {
+        return self::DOMAIN_ODM_REGISTRARS;
+    }
+
+    /**
      * Each group is independent: off when false, or when null and its package is missing; loud when demanded but
      * missing.
      */
@@ -218,6 +266,28 @@ class Msstc4phpVoBaseBundle extends AbstractBundle
         }
 
         $container->prependExtensionConfig($extension, $shape($types));
+    }
+
+    /**
+     * The domain packages require vo-base-doctrine, so without its types there is nothing to add to. On a name
+     * clash the vo-base-doctrine type and then the earlier registrar keep it.
+     *
+     * @param array<string, class-string>|null $types
+     * @param list<string> $registrars
+     *
+     * @return array<string, class-string>|null
+     */
+    private function withDomainTypes(?array $types, bool $domain, array $registrars, string $base): ?array
+    {
+        if ($types === null || !$domain) {
+            return $types;
+        }
+
+        foreach ($registrars as $registrar) {
+            $types += $this->typesFrom($registrar, $base) ?? [];
+        }
+
+        return $types;
     }
 
     /**

@@ -47,7 +47,11 @@
     },
     "suggest": {
         "symfony/validator": "To validate raw input against value object rules via constraints.",
-        "msstc4php/vo-base-doctrine": "To have the bundle register the Doctrine ORM/ODM types as well."
+        "msstc4php/vo-base-doctrine": "To have the bundle register the Doctrine ORM/ODM types as well.",
+        "msstc4php/vo-documents-doctrine": "To have the bundle register the identity-document Doctrine types as well.",
+        "msstc4php/vo-finance-doctrine": "To have the bundle register the finance Doctrine types as well.",
+        "msstc4php/vo-gs1-doctrine": "To have the bundle register the GS1 Doctrine types as well.",
+        "msstc4php/vo-identifiers-doctrine": "To have the bundle register the identifier Doctrine types as well."
     },
     "autoload": {
         "psr-4": {

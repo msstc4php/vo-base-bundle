@@ -8,8 +8,11 @@ use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
 use MSSTC4PHP\ValueObject\Bundle\Framework\Validator\AssertEmailAddress;
+use MSSTC4PHP\ValueObject\Bundle\Test\Integration\Fixture\ApplicationGtinType;
 use MSSTC4PHP\ValueObject\Bundle\Test\Integration\Kernel\IntegrationKernel;
 use MSSTC4PHP\ValueObject\Doctrine\Orm\EmailAddressType;
+use MSSTC4PHP\ValueObject\Gs1\Doctrine\Orm\GtinType;
+use MSSTC4PHP\ValueObject\Gs1\Key\Gtin;
 use MSSTC4PHP\ValueObject\Identity\EmailAddress;
 use Override;
 use PHPUnit\Framework\Attributes\CoversNothing;
@@ -51,6 +54,58 @@ final class OrmKernelTest extends TestCase
 
         self::assertTrue(Type::hasType(EmailAddressType::NAME));
         self::assertInstanceOf(EmailAddressType::class, Type::getType(EmailAddressType::NAME));
+
+        $kernel->shutdown();
+    }
+
+    #[RequiresMethod(GtinType::class, 'convertToPHPValue')]
+    public function testDomainPackageTypesAreRegisteredToo(): void
+    {
+        $kernel = new IntegrationKernel([new DoctrineBundle()], ['doctrine' => self::DBAL_CONFIG], 'orm-domain');
+        $kernel->boot();
+
+        $platform = $this->connection($kernel)->getDatabasePlatform();
+        $type = Type::getType(GtinType::NAME);
+        self::assertInstanceOf(GtinType::class, $type);
+
+        $gtin = Gtin::from('4006381333931');
+        $back = $type->convertToPHPValue($type->convertToDatabaseValue($gtin, $platform), $platform);
+        self::assertInstanceOf(Gtin::class, $back);
+        self::assertTrue($gtin->equals($back));
+
+        $kernel->shutdown();
+    }
+
+    #[RequiresMethod(GtinType::class, 'convertToPHPValue')]
+    public function testTheApplicationsOwnTypeOfTheSameNameWins(): void
+    {
+        $config = self::DBAL_CONFIG;
+        $config['dbal']['types'] = [GtinType::NAME => ApplicationGtinType::class];
+
+        $kernel = new IntegrationKernel([new DoctrineBundle()], ['doctrine' => $config], 'orm-app-type');
+        $kernel->boot();
+
+        $registered = $kernel->getContainer()->getParameter('doctrine.dbal.connection_factory.types');
+        self::assertIsArray($registered);
+        self::assertSame(['class' => ApplicationGtinType::class], $registered[GtinType::NAME] ?? null);
+        self::assertArrayHasKey(EmailAddressType::NAME, $registered);
+
+        $kernel->shutdown();
+    }
+
+    public function testDomainTypesSwitchedOffKeepTheBaseTypes(): void
+    {
+        $kernel = new IntegrationKernel(
+            [new DoctrineBundle()],
+            ['doctrine' => self::DBAL_CONFIG, 'msstc4php_vo_base' => ['domain_types' => false]],
+            'orm-no-domain',
+        );
+        $kernel->boot();
+
+        $registered = $kernel->getContainer()->getParameter('doctrine.dbal.connection_factory.types');
+        self::assertIsArray($registered);
+        self::assertArrayHasKey(EmailAddressType::NAME, $registered);
+        self::assertArrayNotHasKey('gs1_gtin', $registered);
 
         $kernel->shutdown();
     }
