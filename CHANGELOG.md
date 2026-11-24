@@ -25,7 +25,7 @@ support for abstract classes that resolve their concrete class (vo-documents' `M
 **Deprecated:** `Framework\Validator\AssertCreditCardNumber`, following `Finance\CreditCardNumber` in
 `msstc4php/vo-base` 1.3; use `new ValidValueObject(PaymentCardNumber::class)` with `PaymentCardNumber` from
 `msstc4php/vo-finance`, and keep any custom message free of `{{ value }}`. There is no runtime deprecation notice.
-Removal is no earlier than 2.0.
+Removal is no earlier than 3.0.
 
 **Changed:** no constraint message quotes the rejected value any more. The default of `ValidValueObject` is "The value
 is not a valid {{ type }}.", and every `Assert*` reads "The value is not a valid ..." ("The value is not a valid
