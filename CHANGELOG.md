@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.2.0 - 2026-11-24
 
 **Added:** the Doctrine types of the domain packages. When the bundle registers the DBAL or ODM types, it also prepends
 the types of every installed `msstc4php/vo-gs1-doctrine`, `msstc4php/vo-identifiers-doctrine`,
