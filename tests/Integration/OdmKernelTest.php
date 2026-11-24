@@ -6,8 +6,10 @@ namespace MSSTC4PHP\ValueObject\Bundle\Test\Integration;
 
 use Doctrine\Bundle\MongoDBBundle\DoctrineMongoDBBundle;
 use Doctrine\ODM\MongoDB\Types\Type;
+use MSSTC4PHP\ValueObject\Bundle\Test\Integration\Fixture\ApplicationOdmGtinType;
 use MSSTC4PHP\ValueObject\Bundle\Test\Integration\Kernel\IntegrationKernel;
 use MSSTC4PHP\ValueObject\Doctrine\Odm\EmailAddressType;
+use MSSTC4PHP\ValueObject\Gs1\Doctrine\Odm\GtinType;
 use MSSTC4PHP\ValueObject\Identity\EmailAddress;
 use Override;
 use PHPUnit\Framework\Attributes\CoversNothing;
@@ -52,6 +54,45 @@ final class OdmKernelTest extends TestCase
         self::assertInstanceOf(EmailAddressType::class, Type::getType(EmailAddressType::NAME));
 
         $kernel->shutdown();
+    }
+
+    #[RequiresMethod(GtinType::class, 'convertToPHPValue')]
+    public function testDomainPackageTypesAreRegisteredToo(): void
+    {
+        $kernel = new IntegrationKernel(
+            [new DoctrineMongoDBBundle()],
+            ['doctrine_mongodb' => self::ODM_CONFIG],
+            'odm-domain',
+        );
+        $kernel->boot();
+
+        self::assertInstanceOf(GtinType::class, Type::getType(GtinType::NAME));
+
+        $kernel->shutdown();
+    }
+
+    #[RequiresMethod(GtinType::class, 'convertToPHPValue')]
+    public function testTheApplicationsOwnTypeOfTheSameNameWins(): void
+    {
+        $config = self::ODM_CONFIG;
+        $config['types'] = [GtinType::NAME => ApplicationOdmGtinType::class];
+
+        $kernel = new IntegrationKernel(
+            [new DoctrineMongoDBBundle()],
+            ['doctrine_mongodb' => $config],
+            'odm-app-type',
+        );
+        $kernel->boot();
+
+        try {
+            // getType() caches instances and overrideType() does not drop the cache, so an earlier test's
+            // instance would hide the override; the map is what DoctrineMongoDBBundle actually wrote.
+            self::assertSame(ApplicationOdmGtinType::class, Type::getTypesMap()[GtinType::NAME] ?? null);
+        } finally {
+            // The ODM registry is process-global: put the package's type back for the tests after this one.
+            Type::overrideType(GtinType::NAME, GtinType::class);
+            $kernel->shutdown();
+        }
     }
 
     public function testRegisteredTypeBelongsToTheOdmBranch(): void

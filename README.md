@@ -5,7 +5,8 @@ Symfony Validator constraints and a bundle for
 
 One line in `bundles.php` registers the constraint validator and — if
 [`msstc4php/vo-base-doctrine`][doctrine] happens to be installed — the
-Doctrine ORM and ODM types as well.
+Doctrine ORM and ODM types as well, together with those of any installed domain Doctrine package
+(see [Doctrine types](#doctrine-types)).
 
 ## Install
 
@@ -46,6 +47,7 @@ That is the whole setup. Each group registers when its dependency is installed
 msstc4php_vo_base:
     orm: ~        # null auto-detects, false suppresses, true demands
     odm: ~
+    domain_types: true # also the types of the installed domain Doctrine packages
     validator: ~
     serializer: ~      # value objects in the Serializer, e.g. behind #[MapRequestPayload]
     value_resolver: ~  # controller arguments from route attributes; on unless false
@@ -53,6 +55,25 @@ msstc4php_vo_base:
 
 `true` makes a missing dependency an error at container build time instead of
 silent absence — useful when a deployment must not start without the types.
+
+## Doctrine types
+
+When the bundle registers the DBAL types (`orm`) or the ODM types (`odm`), it prepends the types of
+`msstc4php/vo-base-doctrine` into `doctrine.dbal.types` / `doctrine_mongodb.types`, and with them the types of each of
+these packages that is installed:
+
+| Package | Type names |
+|---|---|
+| `msstc4php/vo-gs1-doctrine` | `gs1_*` |
+| `msstc4php/vo-identifiers-doctrine` | `id_*` |
+| `msstc4php/vo-documents-doctrine` | `vod_*` |
+| `msstc4php/vo-finance-doctrine` | `fin_*` |
+
+The bundle only suggests them: install the ones you need (each from its GitHub repository, like the packages above),
+and nothing else is needed. A package that is not installed adds nothing and is no error. The map is prepended, so a
+type of the same name in your own `doctrine.dbal.types` or `doctrine_mongodb.types` still wins.
+
+`domain_types: false` keeps only the vo-base-doctrine types, for example when you map the domain types yourself.
 
 ## Validating raw input
 

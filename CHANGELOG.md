@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+**Added:** the Doctrine types of the domain packages. When the bundle registers the DBAL or ODM types, it also prepends
+the types of every installed `msstc4php/vo-gs1-doctrine`, `msstc4php/vo-identifiers-doctrine`,
+`msstc4php/vo-documents-doctrine` and `msstc4php/vo-finance-doctrine`, with the same checks as for
+`msstc4php/vo-base-doctrine`: the registrar class and the Doctrine base type must both exist, so an ODM-only install
+loads no ORM types. The packages are suggested, not required. Types of the same name in the application's own Doctrine
+configuration still win. The new option `domain_types` (default `true`) switches this off.
+
 ## 1.2.0 - 2026-11-22
 
 **Deprecated:** `Framework\Validator\AssertCreditCardNumber`, following `Finance\CreditCardNumber` in
