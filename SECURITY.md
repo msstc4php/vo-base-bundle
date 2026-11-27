@@ -3,7 +3,7 @@
 ## Supported Versions
 
 The package follows semantic versioning. Security fixes are released for the latest
-minor on each supported major. Supported: 1.x.
+minor on each supported major. Supported: 1.x, 2.x.
 
 Runtime requirements: PHP >= 8.4, Symfony 7.4 / 8.x.
 
