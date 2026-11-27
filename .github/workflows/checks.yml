@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   standard:
-    uses: msstc4symfony/bundle-standard/.github/workflows/php-bundle.yml@v4.1.0
+    uses: msstc4symfony/bundle-standard/.github/workflows/php-bundle.yml@v4.1.1
     with:
       extensions: 'mbstring, xml, ctype, iconv, intl, bcmath, mongodb, pdo_sqlite'
       # Measured MSI 87.9 % on 2026-11-02 UTC, minus a margin for noise.
